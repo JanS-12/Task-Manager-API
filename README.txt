@@ -25,8 +25,19 @@ taskmanager/
     │   ├── project_schema.py
     │   └── task_schema.py
     │
-    └── routes/             # Blueprints, endpoints
-        ├── __init__.py
-        ├── users.py        
-        ├── projects.py
-        └── tasks.py
+    ├── routes/             # Blueprints, endpoints
+    │    ├── __init__.py
+    │    ├── users.py        
+    │    ├── projects.py
+    │    └── tasks.py
+    │    
+    ├── tests/
+    │    ├── __init__.py
+    │    ├── auth_tests.py
+    │    ├── user_tests.py        
+    │    ├── project_tests.py
+    │    └── task_tests.py
+    │
+    └── utils/
+        ├── security.py
+        └── seed.py
