@@ -44,9 +44,13 @@ def get_task(project_id: int, task_id: int):
     claims = get_jwt()
     
     if claims["role"] != "admin" and project.owner_id != current_user_id:
-        return jsonify(message = "Access denied."), 403
+        return jsonify(message = "Access denied"), 403
     
     task = Task.query.get_or_404(task_id) # Check if specific tasks exists
+    
+    if task.project_id != project_id:
+        return jsonify(message = "Access denied"), 403
+    
     return task_schema.jsonify(task), 200
     
 
