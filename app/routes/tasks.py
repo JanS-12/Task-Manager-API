@@ -32,8 +32,7 @@ def get_tasks(project_id: int):
     tasks = Task.query.filter_by(project_id = project_id).all()
     return tasks_schema.jsonify(tasks), 200
 
-# FIX: YOu can access any task from the correspondent project through the URL project_id.
-#   Make sure you can access the tasks for the project you are looking at (for a user)
+
 # GET /projects/<project_id>/tasks/<task_id> --> get a task for a project
 @task_bp.route("/<int:task_id>", methods=["GET"])
 @jwt_required()
@@ -53,7 +52,6 @@ def get_task(project_id: int, task_id: int):
     
     return task_schema.jsonify(task), 200
     
-
 
 # POST /projects/<project_id>/tasks/create  --> Create a task for a project
 @task_bp.route("/create", methods=["POST"])
@@ -137,6 +135,10 @@ def remove_task(project_id: int, task_id: int):
         return jsonify(message = "Access Denied"), 403
     
     task = Task.query.get_or_404(task_id)
+    
+    if task.project_id != project_id:
+        return jsonify(message = "Access denied"), 403
+    
     db.session.delete(task)
     db.session.commit()
     return jsonify(message = ""), 204 

@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.extensions import db, limiter
 from app.schemas.user_schema import UserSchema
 from app.models.user import User
-from app.utils.security import hash_password, check_password, role_required
+from app.utils.security import hash_password, check_password
 from flask_jwt_extended import create_access_token, create_refresh_token
 
 
@@ -13,13 +13,13 @@ user_schema = UserSchema()
 
 # GET --> /api/v1/auth/health
 @auth_bp.route("/health", methods=["GET"])
-@limiter.limit("5 per minute")
+@limiter.limit("20 per minute") # # TODO: Remember to change this back to 10
 def health_check():
     return jsonify(message = "Auth reachable!")
 
 # Register --> POST /api/v1/auth/register
 @auth_bp.route("/register", methods=["POST"])
-@limiter.limit("5 per minute")
+@limiter.limit("20 per minute") # TODO: Remember to change this back to 10
 def register():
     json_data = request.get_json()
     # Check for input
@@ -52,7 +52,7 @@ def register():
 
 # Login --> POST "/api/v1/auth/login"
 @auth_bp.route("/login", methods=["POST"])
-@limiter.limit("5 per minute")
+@limiter.limit("100 per minute") # TODO: Remember to uncomment and change this back to 10
 def login():
     json_data = request.get_json()
     if not json_data:
@@ -72,7 +72,10 @@ def login():
         additional_claims = additional_claims
     )
     
-    refresh_token = create_refresh_token(identity = str(user.user_id))
+    refresh_token = create_refresh_token(
+        identity = str(user.user_id), 
+        additional_claims = additional_claims
+    )
     return jsonify(access_token = access_token, refresh_token = refresh_token), 200
         
         

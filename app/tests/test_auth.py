@@ -1,0 +1,148 @@
+
+""" Test Suite for Auth Routes """
+
+# --- Success Routes ------
+def test_create_user(client):
+    payload = {
+        "username": "Josue",
+        "email": "josue@test.com",
+        "password_hash": "123456789",
+        "role": "user"
+    }
+
+    response = client.post(
+        "/api/v1/auth/register",
+        json = payload, 
+        content_type = "application/json"
+    )
+    
+    assert response.status_code == 201
+    data = response.get_json()
+    assert data["username"] == "Josue"
+    assert data["email"] == "josue@test.com"    
+    
+def test_login(client):
+    credentials = {
+        "username": "Josue",
+        "password_hash": "123456789"
+    }
+    
+    # Login
+    response = client.post(
+        "/api/v1/auth/login",
+        json = credentials, 
+        content_type = "application/json"
+    )
+    
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "access_token" in data
+    assert "refresh_token" in data
+    
+# ------ Failure Routes --------
+def test_registration_invalid_data(client):
+    payload = {
+        "username": "Jo",
+        "email": "jo",
+        "password_hash": "12",
+        "role": "user"
+    }
+    
+    response = client.post(
+        "/api/v1/auth/register",
+        json = payload, 
+        content_type = "application/json"
+    )
+    
+    assert response.status_code == 400
+    data = response.get_json()
+    assert "username" in data
+    assert "email" in data
+    assert "password_hash" in data
+    
+def test_registration_no_data(client):
+    payload = {}
+    
+    response = client.post(
+        "/api/v1/auth/register",
+        json = payload, 
+        content_type = "application/json"
+    )
+    
+    assert response.status_code == 400
+    data = response.get_json()
+    assert "message" in data
+
+def test_registration_duplicate_user(client):
+    payload = {
+        "username": "Duplicate",
+        "email": "duplicate@test.com",
+        "password_hash": "asdfghjkl",
+        "role": "user"
+    }  
+    
+    client.post(
+        "/api/v1/auth/register",
+        json = payload, 
+        content_type = "application/json"
+    )
+    
+    response = client.post(
+        "/api/v1/auth/register",
+        json = payload, 
+        content_type = "application/json"
+    )
+    
+    assert response.status_code == 409
+    data = response.get_json()
+    assert "message" in data
+    
+def test_login_no_data(client):
+    credentials = {}
+    
+    # Login
+    response = client.post(
+        "/api/v1/auth/login",
+        json = credentials, 
+        content_type = "application/json"
+    )
+    
+    assert response.status_code == 400
+    data = response.get_json()
+    assert "message" in data
+    
+        
+def test_login_invalid_password(client):
+    credentials = {
+        "username": "Manuel",
+        "password_hash": "asdfg"
+    }
+    
+    # Login
+    response = client.post(
+        "/api/v1/auth/login",
+        json = credentials, 
+        content_type = "application/json"
+    )
+    
+    assert response.status_code == 401
+    data = response.get_json()
+    assert "message" in data  
+
+def test_login_invalid_username(client):
+    credentials = {
+        "username": "Manuela",
+        "password_hash": "asdfghjkl"
+    }
+    
+    # Login
+    response = client.post(
+        "/api/v1/auth/login",
+        json = credentials, 
+        content_type = "application/json"
+    )
+    
+    assert response.status_code == 401
+    data = response.get_json()
+    assert "message" in data  
+    

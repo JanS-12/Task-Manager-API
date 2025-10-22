@@ -3,7 +3,7 @@ from app.extensions import db
 from app.models.user import User
 from app.schemas.user_schema import UserSchema
 from app.utils.security import hash_password, role_required
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt, get_jti
 # Status codes are critical:
 
 # 200 OK → success
@@ -29,7 +29,7 @@ users_schema = UserSchema(many = True)
 @role_required(["admin"]) 
 def get_all_users():
     users = User.query.all()     
-    if users:# Get all users
+    if users:       # Get all users
         return users_schema.jsonify(users), 200
 
     return jsonify(message = "No users found."), 404
@@ -69,10 +69,10 @@ def update_user(user_id: int):
     if errors:
         return jsonify(errors), 400
     
+    # Check if user exists
+    user = User.query.get_or_404(user_id)
+    
     if claims["role"] == "admin" or user_id == current_user_id:    
-        # Check if user exists
-        user = User.query.get_or_404(user_id)
-        
         # Deserialize data
         data = user_schema.load(json_data)
         

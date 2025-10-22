@@ -5,9 +5,12 @@ from .routes import user_bp, project_bp, task_bp, auth_bp
 from .utils.seed import seed_data
 
 
-def create_app():
+def create_app(config_name = "default"):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    if config_name == "testing":
+        app.config.from_object("app.config.TestingConfig")
+    else:
+        app.config.from_object("app.config.Config")
 
     # Init extensions
     db.init_app(app)
