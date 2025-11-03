@@ -27,7 +27,7 @@ def runner(app):
 def admin_auth_headers(client):
     credentials = {
         "username": "John Smith",
-        "password_hash": "abcdfghjkl"
+        "password": "abcdfghjkl"
     }
     
     response = client.post(
@@ -45,7 +45,7 @@ def admin_auth_headers(client):
 def user_auth_headers(client):
     credentials = {
         "username": "Jane Miranda",
-        "password_hash": "jane34678_23"
+        "password": "jane34678_23"
     }
     
     response = client.post(

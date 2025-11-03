@@ -65,7 +65,7 @@ def create_project():
     # Deserialize data
     data = project_schema.load(json_data)
     
-    project = Project(project_name=data["project_name"], description=data.get("description"), owner_id = current_user_id)
+    project = Project(title=data["title"], description=data.get("description"), owner_id = current_user_id)
     db.session.add(project)
     db.session.commit()
     return project_schema.jsonify(project), 201
@@ -95,7 +95,7 @@ def update_project(project_id: int):
       # Deserialize data
       data = project_schema.load(json_data)
       
-      project.project_name = data["project_name"]
+      project.title = data["title"]
       project.description = data["description"]      
       db.session.commit()
       return project_schema.jsonify(project), 200

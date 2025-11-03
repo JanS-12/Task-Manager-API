@@ -6,7 +6,7 @@ def test_create_user(client):
     payload = {
         "username": "Josue",
         "email": "josue@test.com",
-        "password_hash": "123456789",
+        "password": "123456789",
         "role": "user"
     }
 
@@ -24,7 +24,7 @@ def test_create_user(client):
 def test_login(client):
     credentials = {
         "username": "Josue",
-        "password_hash": "123456789"
+        "password": "123456789"
     }
     
     # Login
@@ -44,7 +44,7 @@ def test_registration_invalid_data(client):
     payload = {
         "username": "Jo",
         "email": "jo",
-        "password_hash": "12",
+        "password": "12",
         "role": "user"
     }
     
@@ -58,7 +58,7 @@ def test_registration_invalid_data(client):
     data = response.get_json()
     assert "username" in data
     assert "email" in data
-    assert "password_hash" in data
+    assert "password" in data
     
 def test_registration_no_data(client):
     payload = {}
@@ -77,7 +77,7 @@ def test_registration_duplicate_user(client):
     payload = {
         "username": "Duplicate",
         "email": "duplicate@test.com",
-        "password_hash": "asdfghjkl",
+        "password": "asdfghjkl",
         "role": "user"
     }  
     
@@ -115,7 +115,7 @@ def test_login_no_data(client):
 def test_login_invalid_password(client):
     credentials = {
         "username": "Manuel",
-        "password_hash": "asdfg"
+        "password": "asdfg"
     }
     
     # Login
@@ -132,7 +132,7 @@ def test_login_invalid_password(client):
 def test_login_invalid_username(client):
     credentials = {
         "username": "Manuela",
-        "password_hash": "asdfghjkl"
+        "password": "asdfghjkl"
     }
     
     # Login

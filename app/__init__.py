@@ -1,8 +1,8 @@
 from flask  import Flask
-from .config import Config
 from .extensions import db, ma, jwt, limiter
 from .routes import user_bp, project_bp, task_bp, auth_bp
 from .utils.seed import seed_data
+from app.models.token_blocklist import TokenBlocklist
 
 
 def create_app(config_name = "default"):
@@ -32,3 +32,10 @@ def create_app(config_name = "default"):
     
     return app  
 
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload):
+    jti = jwt_payload.get("jti")
+    token = TokenBlocklist.query.filter_by(jti=jti).first()
+    
+    # if token exists and revoked_at is set -> revoked
+    return token is not None and token.revoked_at is not None

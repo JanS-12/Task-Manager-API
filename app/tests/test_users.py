@@ -25,7 +25,7 @@ def test_admin_update_user(client, admin_auth_headers):
     payload = {
         "username": "Junior",
         "email": "junior@test.com",
-        "password_hash": "123456789",
+        "password": "123456789",
         "role": "user"
     }
     
@@ -96,7 +96,7 @@ def test_user_update_user_invalid_data(client, user_auth_headers):
     payload = {
         "username": "Sl",
         "email": "samu",
-        "password_hash": "45",
+        "password": "45",
         "role": ""
     }  
     
@@ -109,14 +109,14 @@ def test_user_update_user_invalid_data(client, user_auth_headers):
     assert response.status_code == 400  
     data = response.get_json()
     assert "username" in data 
-    assert "password_hash" in data
+    assert "password" in data
     assert "email" in data 
 
 def test_user_update_user_not_found(client, user_auth_headers):
     payload = {
         "username": "Samuel",
         "email": "samuel@test.com",
-        "password_hash": "aurora12345",
+        "password": "aurora12345",
         "role": "user"
     }    
     
@@ -132,7 +132,7 @@ def test_user_update_wrong_user(client, user_auth_headers):
     payload = {
         "username": "Samuel",
         "email": "samuel@test.com",
-        "password_hash": "aurora12345",
+        "password": "aurora12345",
         "role": "user"
     }    
     

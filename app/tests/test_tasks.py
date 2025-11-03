@@ -21,7 +21,7 @@ def test_admin_get_a_task(client, admin_auth_headers):
 
 def test_admin_create_task(client, admin_auth_headers):
     payload = {
-        "task_name": "Admin task test suite endpoint",
+        "title": "Admin task test suite endpoint",
         "description": "Testing Endpoint for success",
         "project_id": "1"
     }   
@@ -34,11 +34,11 @@ def test_admin_create_task(client, admin_auth_headers):
     
     assert response.status_code == 201
     data = response.get_json()
-    assert "task_id" in data
+    assert "id" in data
 
 def test_admin_update_task(client, admin_auth_headers):
     payload = {
-        "task_name": "Admin update task test suite endpoint",
+        "title": "Admin update task test suite endpoint",
         "description": "Testing Endpoint for update success",
         "project_id": "1"
     }   
@@ -71,7 +71,7 @@ def test_user_get_a_task(client, user_auth_headers):
     
 def test_user_create_task(client, user_auth_headers):
     payload = {
-        "task_name": "User task test suite endpoint",
+        "title": "User task test suite endpoint",
         "description": "Testing Endpoint for success",
         "project_id": "2"
     }   
@@ -84,11 +84,11 @@ def test_user_create_task(client, user_auth_headers):
     
     assert response.status_code == 201
     data = response.get_json()
-    assert "task_id" in data
+    assert "id" in data
     
 def test_user_update_task(client, user_auth_headers):
     payload = {
-        "task_name": "User update task test suite endpoint",
+        "title": "User update task test suite endpoint",
         "description": "Testing Endpoint for update success",
         "project_id": "2"
     }   
@@ -162,7 +162,7 @@ def test_user_get_a_task_wrong_project(client, user_auth_headers):
     # --- Create a Task 
 def test_user_create_task_project_not_found(client, user_auth_headers):
     payload = {
-        "task_name": "User task test suite endpoint",
+        "title": "User task test suite endpoint",
         "description": "Testing Endpoint for success",
         "project_id": "2"
     }   
@@ -188,7 +188,7 @@ def test_user_create_task_no_data(client, user_auth_headers):
 
 def test_user_create_task_invalid_data(client, user_auth_headers):
     payload = {
-        "task_name": "t",
+        "title": "t",
         "description": "",
         "project_id": ""
     }
@@ -201,12 +201,12 @@ def test_user_create_task_invalid_data(client, user_auth_headers):
     
     assert response.status_code == 400
     data = response.get_json()
-    assert "task_name" in data
+    assert "title" in data
     assert "project_id" in data
     
 def test_user_create_task_wrong_project(client, user_auth_headers):
     payload = {
-        "task_name": "User task test suite endpoint",
+        "title": "User task test suite endpoint",
         "description": "Testing Endpoint for success",
         "project_id": "1"
     }   
@@ -222,7 +222,7 @@ def test_user_create_task_wrong_project(client, user_auth_headers):
     # ---- Update Task
 def test_user_update_task_project_not_found(client, user_auth_headers):
     payload = {
-        "task_name": "User task test suite endpoint",
+        "title": "User task test suite endpoint",
         "description": "Testing Endpoint for success",
         "project_id": "2"
     }   
@@ -248,7 +248,7 @@ def test_user_update_task_no_data(client, user_auth_headers):
 
 def test_user_update_task_invalid_data(client, user_auth_headers):
     payload = {
-        "task_name": "t",
+        "title": "t",
         "description": "",
         "project_id": ""
     }
@@ -261,12 +261,12 @@ def test_user_update_task_invalid_data(client, user_auth_headers):
     
     assert response.status_code == 400
     data = response.get_json()
-    assert "task_name" in data
+    assert "title" in data
     assert "project_id" in data
     
 def test_user_update_task_wrong_project(client, user_auth_headers):
     payload = {
-        "task_name": "User task test suite endpoint",
+        "title": "User task test suite endpoint",
         "description": "Testing Endpoint for success",
         "project_id": "1"
     }   
@@ -281,7 +281,7 @@ def test_user_update_task_wrong_project(client, user_auth_headers):
 
 def test_user_update_task_not_found(client, user_auth_headers):
     payload = {
-        "task_name": "User task test suite endpoint",
+        "title": "User task test suite endpoint",
         "description": "Testing Endpoint for success",
         "project_id": "2"
     }   

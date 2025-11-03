@@ -78,7 +78,7 @@ def create_task(project_id: int):
         data = task_schema.load(json_data)
             
         task = Task(
-            task_name = data["task_name"], 
+            title = data["title"], 
             description = data.get("description"), 
             project_id = project_id
         )
@@ -116,7 +116,7 @@ def update_task(project_id: int, task_id: int):
     # Deserialize data
     data = task_schema.load(json_data)
     
-    task.task_name = data["task_name"]
+    task.title = data["title"]
     task.description = data["description"]
     db.session.commit()
     return task_schema.jsonify(task), 200

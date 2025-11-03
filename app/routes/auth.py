@@ -2,14 +2,16 @@ from flask import Blueprint, request, jsonify
 from app.extensions import db, limiter
 from app.schemas.user_schema import UserSchema
 from app.models.user import User
+from app.models.token_blocklist import TokenBlocklist
 from app.utils.security import hash_password, check_password
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
+
 
 
 auth_bp = Blueprint("auth", __name__, url_prefix = "/api/v1/auth")
 
 user_schema = UserSchema()
-# user_public_schema = UserSchema(exclude = ("password_hash"))
+# user_public_schema = UserSchema(exclude = ("password"))
 
 # GET --> /api/v1/auth/health
 @auth_bp.route("/health", methods=["GET"])
@@ -41,7 +43,7 @@ def register():
     new_user = User(
         username = data["username"], 
         email = data["email"], 
-        password_hash = hash_password(data["password_hash"]), # .decode("utf-8") --> to convert from bytes to str for DB
+        password = hash_password(data["password"]), # .decode("utf-8") --> to convert from bytes to str for DB
         role = data["role"]
     ) 
     
@@ -59,23 +61,35 @@ def login():
         return jsonify(message = "No data provided"), 400
     
     username = json_data.get("username")
-    password = json_data.get("password_hash")
+    password = json_data.get("password")
     
     user = User.query.filter_by(username = username).first()    
     
-    if not user or not check_password(password, user.password_hash):
+    if not user or not check_password(password, user.password):
         return jsonify(message = "Invalid credentials"), 401
     
     additional_claims = {"role": user.role}
     access_token = create_access_token(
-        identity = str(user.user_id), 
+        identity = str(user.id), 
         additional_claims = additional_claims
     )
     
     refresh_token = create_refresh_token(
-        identity = str(user.user_id), 
+        identity = str(user.id), 
         additional_claims = additional_claims
     )
+    
+    access_jti = decode_token(access_token)["jti"]
+    refresh_jti = decode_token(refresh_token)["jti"]
+    
+    tokens_blocklist = [
+        TokenBlocklist(jti = access_jti, user_id = user.id, token_type = "access", revoked_at=None),
+        TokenBlocklist(jti = refresh_jti, user_id = user.id, token_type = "refresh", revoked_at=None)
+    ]
+    
+    db.session.add_all(tokens_blocklist)
+    db.session.commit()
+    
+    
     return jsonify(access_token = access_token, refresh_token = refresh_token), 200
-        
         
