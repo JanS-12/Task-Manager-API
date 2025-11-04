@@ -39,6 +39,34 @@ def test_login(client):
     assert "access_token" in data
     assert "refresh_token" in data
     
+def test_user_refresh_access_token(client):
+    
+    credentials = {
+        "username": "Josue",
+        "password": "123456789"
+    }
+    
+    # Login
+    response = client.post(
+        "/api/v1/auth/login",
+        json = credentials, 
+        content_type = "application/json"
+    )
+    
+    assert response.status_code == 200
+    token = response.get_json()["refresh_token"]
+    header = {"Authorization": f"Bearer {token}"}
+    
+    response = client.post(
+        "/api/v1/auth/refresh",
+        headers = header
+    )
+    
+    assert response.status_code == 200
+    data = response.get_json()
+    assert "access_token" in data
+    
+    
 # ------ Failure Routes --------
 def test_registration_invalid_data(client):
     payload = {

@@ -7,18 +7,6 @@ from app.utils.security import hash_password, role_required
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from datetime import datetime
 
-# Status codes are critical:
-
-# 200 OK → success
-# 201 Created → new resource made
-# 204 No Content → deletion success
-# 400 Bad Request → invalid input
-# 401 Unauthorized → missing/invalid auth
-# 403 Forbidden
-# 404 Not Found → resource doesn’t exist
-# 409 Conflict 
-# 500 Internal Server Error → server issue
-
 # Input: username, email, password_hash
 user_bp = Blueprint("users", __name__, url_prefix = "/api/v1/users")
 
@@ -51,7 +39,6 @@ def get_user(user_id: int):
         return user_schema.jsonify(user), 200
     
     return jsonify(error = "Access Denied"), 403
-    
     
 
 # PUT /users/<user_id> --> Replace a user
@@ -115,7 +102,7 @@ def logout():
 
 # DELETE /<user_id> --> Delete a user    
 @user_bp.route("/<int:user_id>", methods=["DELETE"])
-@jwt_required()
+@jwt_required(verify_type = False)
 @role_required(["admin"])
 def remove_user(user_id: int):   
     claims = get_jwt()
@@ -127,7 +114,10 @@ def remove_user(user_id: int):
     
     try:    # Transaction Block
         # Before deletion, mark revoked_at time for all active tokens
-        TokenBlocklist.query.filter_by(user_id = user_id, revoked_at = None).update({"revoked_at": datetime.now()}, synchronize_session = False)
+        TokenBlocklist.query.filter_by(user_id = user_id, revoked_at = None).update(
+            {"revoked_at": datetime.now()}, 
+            synchronize_session = False
+        )
             
         # Success --> Transaction Committed
         db.session.delete(user)        

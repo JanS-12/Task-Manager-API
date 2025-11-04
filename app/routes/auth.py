@@ -3,9 +3,9 @@ from app.extensions import db, limiter
 from app.schemas.user_schema import UserSchema
 from app.models.user import User
 from app.models.token_blocklist import TokenBlocklist
-from app.utils.security import hash_password, check_password
-from flask_jwt_extended import create_access_token, create_refresh_token, decode_token
-
+from app.utils.security import hash_password, check_password, role_required
+from app.utils.jwt import create_token_blocklist
+from flask_jwt_extended import create_access_token, create_refresh_token, decode_token, jwt_required, get_jwt, get_jwt_identity
 
 
 auth_bp = Blueprint("auth", __name__, url_prefix = "/api/v1/auth")
@@ -18,6 +18,7 @@ user_schema = UserSchema()
 @limiter.limit("20 per minute") # # TODO: Remember to change this back to 10
 def health_check():
     return jsonify(message = "Auth reachable!")
+
 
 # Register --> POST /api/v1/auth/register
 @auth_bp.route("/register", methods=["POST"])
@@ -52,6 +53,7 @@ def register():
     
     return user_schema.jsonify(new_user), 201
 
+
 # Login --> POST "/api/v1/auth/login"
 @auth_bp.route("/login", methods=["POST"])
 @limiter.limit("100 per minute") # TODO: Remember to uncomment and change this back to 10
@@ -68,6 +70,7 @@ def login():
     if not user or not check_password(password, user.password):
         return jsonify(message = "Invalid credentials"), 401
     
+    # Create both Access and Refresh Tokens
     additional_claims = {"role": user.role}
     access_token = create_access_token(
         identity = str(user.id), 
@@ -79,17 +82,27 @@ def login():
         additional_claims = additional_claims
     )
     
-    access_jti = decode_token(access_token)["jti"]
-    refresh_jti = decode_token(refresh_token)["jti"]
-    
+    # Record JTI's for revocation
     tokens_blocklist = [
-        TokenBlocklist(jti = access_jti, user_id = user.id, token_type = "access", revoked_at=None),
-        TokenBlocklist(jti = refresh_jti, user_id = user.id, token_type = "refresh", revoked_at=None)
+        create_token_blocklist(access_token),
+        create_token_blocklist(refresh_token)
     ]
     
     db.session.add_all(tokens_blocklist)
-    db.session.commit()
-    
+    db.session.commit()   
     
     return jsonify(access_token = access_token, refresh_token = refresh_token), 200
-        
+
+
+# This function is to be called indirectly by the front-end client, not the user directly
+@auth_bp.route("/refresh", methods=["POST"])
+@jwt_required(refresh = True)
+def refresh_access_token():
+    current_user_id = str(get_jwt_identity())
+    role = {"role": f"{get_jwt()["role"]}"}
+    
+    new_access_token = create_access_token(identity = current_user_id, additional_claims = role)
+    token_blocklist = create_token_blocklist(new_access_token)
+    db.session.add(token_blocklist)
+    db.session.commit()
+    return jsonify(access_token = new_access_token), 200
