@@ -2,44 +2,43 @@ from flask import Blueprint, request, jsonify
 from app.extensions import db, limiter
 from app.schemas.user_schema import UserSchema
 from app.models.user import User
-from app.models.token_blocklist import TokenBlocklist
-from app.utils.security import hash_password, check_password, role_required
+from app.utils.security import hash_password, check_password
 from app.utils.jwt import create_token_blocklist
-from flask_jwt_extended import create_access_token, create_refresh_token, decode_token, jwt_required, get_jwt, get_jwt_identity
-
+from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt, get_jwt_identity)
+from marshmallow import ValidationError
+from app.utils.custom_exceptions import BadRequest, Unauthorized, ConflictError
 
 auth_bp = Blueprint("auth", __name__, url_prefix = "/api/v1/auth")
 
 user_schema = UserSchema()
-# user_public_schema = UserSchema(exclude = ("password"))
 
 # GET --> /api/v1/auth/health
 @auth_bp.route("/health", methods=["GET"])
-@limiter.limit("20 per minute") # # TODO: Remember to change this back to 10
+@limiter.limit("20 per minute") 
 def health_check():
     return jsonify(message = "Auth reachable!")
 
 
 # Register --> POST /api/v1/auth/register
 @auth_bp.route("/register", methods=["POST"])
-@limiter.limit("20 per minute") # TODO: Remember to change this back to 10
+@limiter.limit("20 per minute")
 def register():
     json_data = request.get_json()
     # Check for input
     if not json_data:
-        return jsonify(message = "No data provided."), 400
+        raise BadRequest("No input data provided")
     
     # Validate Input
     errors = user_schema.validate(json_data)
     if errors:
-        return jsonify(errors), 400
+        raise ValidationError(errors)
     
     # Deserialize data
     data = user_schema.load(json_data)
     
     # If user exists
     if User.query.filter_by(username = data["username"], email = data["email"]).first():
-        return jsonify(message = "User already exist"), 409
+        raise ConflictError("User with given username and email already exists")
     
     new_user = User(
         username = data["username"], 
@@ -56,11 +55,11 @@ def register():
 
 # Login --> POST "/api/v1/auth/login"
 @auth_bp.route("/login", methods=["POST"])
-@limiter.limit("100 per minute") # TODO: Remember to uncomment and change this back to 10
+@limiter.limit("100 per minute") 
 def login():
     json_data = request.get_json()
     if not json_data:
-        return jsonify(message = "No data provided"), 400
+        raise BadRequest("No input data provided")
     
     username = json_data.get("username")
     password = json_data.get("password")
@@ -68,7 +67,7 @@ def login():
     user = User.query.filter_by(username = username).first()    
     
     if not user or not check_password(password, user.password):
-        return jsonify(message = "Invalid credentials"), 401
+        raise Unauthorized("Invalid username or password")
     
     # Create both Access and Refresh Tokens
     additional_claims = {"role": user.role}

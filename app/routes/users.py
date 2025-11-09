@@ -5,6 +5,7 @@ from app.models.token_blocklist import TokenBlocklist
 from app.schemas.user_schema import UserSchema
 from app.utils.security import hash_password, role_required
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from app.utils.custom_exceptions import ResourceNotFound, Forbidden, BadRequest, UnprocessableEntity
 from datetime import datetime
 
 # Input: username, email, password_hash
@@ -23,7 +24,7 @@ def get_all_users():
     if users:       # Get all users
         return users_schema.jsonify(users), 200
 
-    return jsonify(message = "No users found."), 404
+    raise ResourceNotFound("No users found.")  
  
  # GET /user_id --> Get user profile
 @user_bp.route("/<int:user_id>", methods=["GET"])
@@ -35,11 +36,13 @@ def get_user(user_id: int):
     
     # Check ownership
     if claims["role"] == "admin" or user_id == current_user_id: 
-        user = User.query.get_or_404(user_id)
+        user = User.query.filter_by(id = user_id).first()
+        if not user:
+            raise ResourceNotFound("User not found.")
+        
         return user_schema.jsonify(user), 200
     
-    return jsonify(error = "Access Denied"), 403
-    
+    raise Forbidden("Access Denied")
 
 # PUT /users/<user_id> --> Replace a user
 @user_bp.route("/<int:user_id>", methods=["PUT"])
@@ -52,15 +55,17 @@ def update_user(user_id: int):
     claims = get_jwt()
     
     if not json_data:
-        return jsonify(message = "No data provided."), 400
+        raise BadRequest("No input data provided")   
     
     # Validate input 
     errors = user_schema.validate(json_data)
     if errors:
-        return jsonify(errors), 400
+        raise UnprocessableEntity(errors)
     
     # Check if user exists
-    user = User.query.get_or_404(user_id)
+    user = User.query.filter_by(id = user_id).first()
+    if not user:
+        raise ResourceNotFound("User not found.")
     
     if claims["role"] == "admin" or user_id == current_user_id:    
         # Deserialize data
@@ -73,7 +78,7 @@ def update_user(user_id: int):
         db.session.commit()                 # Commit changes to db
         return user_schema.jsonify(user), 200
     
-    return jsonify(message = "Access Denied"), 403
+    raise Forbidden("Access Denied")
 
 # It is only logging out the current token, but it works. 
 @user_bp.route("/logout", methods=["POST"])
@@ -84,7 +89,9 @@ def logout():
     jti = get_jwt()["jti"]
 
     # If user exists
-    user = User.query.get_or_404(current_user_id)
+    user = User.query.filter_by(id = current_user_id).first()
+    if not user:
+        raise ResourceNotFound("User not found.")
     
     # Get all active tokens for the user, both access and refresh
     tokens = TokenBlocklist.query.filter_by(user_id = current_user_id, revoked_at=None).all()
@@ -108,9 +115,11 @@ def remove_user(user_id: int):
     claims = get_jwt()
     
     if claims["role"] != "admin":
-        return jsonify(message = "Access Denied"), 403
+        raise Forbidden("Access Denied")
     
-    user = User.query.get_or_404(user_id)
+    user = User.query.filter_by(id = user_id).first()
+    if not user:
+        raise ResourceNotFound("User not found.")
     
     try:    # Transaction Block
         # Before deletion, mark revoked_at time for all active tokens

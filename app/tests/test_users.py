@@ -98,7 +98,7 @@ def test_user_update_user_no_data(client, user_auth_headers):
     
     assert response.status_code == 400  
     data = response.get_json()
-    assert "message" in data
+    assert "error" in data
     
 def test_user_update_user_invalid_data(client, user_auth_headers):
     payload = {
@@ -114,11 +114,12 @@ def test_user_update_user_invalid_data(client, user_auth_headers):
         headers = user_auth_headers
     )
     
-    assert response.status_code == 400  
+    assert response.status_code == 422  
     data = response.get_json()
-    assert "username" in data 
-    assert "password" in data
-    assert "email" in data 
+    assert "error" in data 
+    assert "username" in data["message"]
+    assert "password" in data["message"]
+    assert "email" in data["message"]
 
 def test_user_update_user_not_found(client, user_auth_headers):
     payload = {

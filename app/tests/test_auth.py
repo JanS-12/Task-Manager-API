@@ -84,9 +84,10 @@ def test_registration_invalid_data(client):
     
     assert response.status_code == 400
     data = response.get_json()
-    assert "username" in data
-    assert "email" in data
-    assert "password" in data
+    assert "error" in data
+    assert "username" in data["message"]
+    assert "email" in data["message"]
+    assert "password" in data["message"]
     
 def test_registration_no_data(client):
     payload = {}

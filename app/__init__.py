@@ -3,6 +3,7 @@ from .extensions import db, ma, jwt, limiter
 from .routes import user_bp, project_bp, task_bp, auth_bp
 from .utils.seed import seed_data
 from app.models.token_blocklist import TokenBlocklist
+from .utils.error_handlers import register_error_handlers
 
 
 def create_app(config_name = "default"):
@@ -30,9 +31,11 @@ def create_app(config_name = "default"):
     app.register_blueprint(task_bp)
     app.register_blueprint(auth_bp)
     
+    register_error_handlers(app)
+    
     return app  
 
-@jwt.token_in_blocklist_loader
+@jwt.token_in_blocklist_loader  # Check for revoked tokens automatically
 def check_if_token_revoked(jwt_header, jwt_payload):
     jti = jwt_payload.get("jti")
     token = TokenBlocklist.query.filter_by(jti=jti).first()

@@ -9,6 +9,7 @@ class TokenBlocklist(db.Model):
     token_type  = db.Column(db.String(15), nullable = False)
     created_at  = db.Column(db.DateTime(timezone = True), server_default = func.now())
     revoked_at  = db.Column(db.DateTime(timezone = True), nullable = True)
+    expires_at  = db.Column(db.DateTime(timezone = True), nullable = True)
     
     def is_revoked(self):
         return self.revoked_at is not None

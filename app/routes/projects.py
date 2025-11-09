@@ -4,6 +4,7 @@ from app.models.project import Project
 from app.schemas.project_schema import ProjectSchema
 from app.utils.security import role_required
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
+from app.utils.custom_exceptions import BadRequest, Forbidden, ResourceNotFound, UnprocessableEntity
 
 # Input : project_name, description, owner_id
 
@@ -30,7 +31,7 @@ def get_projects():
     if projects:  
       return projects_schema.jsonify(projects), 200    
   
-    return jsonify(message = "Projects not found"), 404
+    raise ResourceNotFound("No projects found")
 
 
 # GET /projects/<int:project_id> ---> List a project
@@ -41,11 +42,14 @@ def get_project(project_id: int):
     current_user_id = int(get_jwt_identity())
     claims = get_jwt()
     
-    project = Project.query.get_or_404(project_id)
+    project = Project.query.filter_by(id = project_id).first()
+    if not project:
+      raise ResourceNotFound("Project not found")
+    
     if claims["role"] == "admin" or project.owner_id == current_user_id:
         return project_schema.jsonify(project), 200
     
-    return jsonify(message = "Access Denied"), 403
+    raise Forbidden("Access Denied")  
 
 
 # POST /projects/register ---> Create a Project
@@ -56,11 +60,11 @@ def create_project():
     current_user_id = int(get_jwt_identity())
     json_data = request.get_json()
     if not json_data:               # Check for valid input
-      return jsonify(message = "No data provided, need data to proceed"), 400
+      raise BadRequest("No input data provided")  
     
     errors = project_schema.validate(json_data)   # Validate input
     if errors:
-      return jsonify(errors), 400
+      raise UnprocessableEntity(errors)
     
     # Deserialize data
     data = project_schema.load(json_data)
@@ -81,15 +85,17 @@ def update_project(project_id: int):
     json_data = request.get_json() 
     # Check for valid input
     if not json_data:
-      return jsonify(message = "No data provided"), 400
+      raise BadRequest("No input data provided")  
     
     # Validate input
     errors = project_schema.validate(json_data)
     if errors:
-      return jsonify(errors), 400
+      raise UnprocessableEntity(errors)
     
     # Check if project exists
-    project = Project.query.get_or_404(project_id)
+    project = Project.query.filter_by(id = project_id).first()  
+    if not project:
+      raise ResourceNotFound("Project not found")
     
     if claims["role"] == "admin" or project.owner_id == current_user_id:
       # Deserialize data
@@ -100,7 +106,7 @@ def update_project(project_id: int):
       db.session.commit()
       return project_schema.jsonify(project), 200
     
-    return jsonify(message = "Access Denied"), 403
+    raise Forbidden("Access Denied")  
     
     
 # DELETE /projects/<project_id> --> Delete a project and its tasks
@@ -110,11 +116,13 @@ def update_project(project_id: int):
 def remove_project(project_id: int):
   current_user_id = int(get_jwt_identity())
   claims = get_jwt()
-  project = Project.query.get_or_404(project_id)
+  project = Project.query.filter_by(id = project_id).first()
+  if not project:
+    raise ResourceNotFound("Project not found")
   
   if claims["role"] == "admin" or project.owner_id == current_user_id:
     db.session.delete(project)
     db.session.commit()
     return jsonify(message = ""), 204
   
-  return jsonify(message = "Access Denied"), 403
+  raise Forbidden("Access Denied")

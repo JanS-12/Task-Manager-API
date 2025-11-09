@@ -184,7 +184,7 @@ def test_user_create_task_no_data(client, user_auth_headers):
     
     assert response.status_code == 400
     data = response.get_json()
-    assert "message" in data
+    assert "error" in data
 
 def test_user_create_task_invalid_data(client, user_auth_headers):
     payload = {
@@ -199,10 +199,11 @@ def test_user_create_task_invalid_data(client, user_auth_headers):
         headers = user_auth_headers
     ) 
     
-    assert response.status_code == 400
+    assert response.status_code == 422
     data = response.get_json()
-    assert "title" in data
-    assert "project_id" in data
+    assert "error" in data
+    assert "title" in data["message"]
+    assert "project_id" in data["message"]
     
 def test_user_create_task_wrong_project(client, user_auth_headers):
     payload = {
@@ -244,7 +245,7 @@ def test_user_update_task_no_data(client, user_auth_headers):
     
     assert response.status_code == 400
     data = response.get_json()
-    assert "message" in data
+    assert "error" in data
 
 def test_user_update_task_invalid_data(client, user_auth_headers):
     payload = {
@@ -259,10 +260,11 @@ def test_user_update_task_invalid_data(client, user_auth_headers):
         headers = user_auth_headers
     ) 
     
-    assert response.status_code == 400
+    assert response.status_code == 422
     data = response.get_json()
-    assert "title" in data
-    assert "project_id" in data
+    assert "error" in data
+    assert "title" in data["message"]
+    assert "project_id" in data["message"]
     
 def test_user_update_task_wrong_project(client, user_auth_headers):
     payload = {
