@@ -1,12 +1,11 @@
-from flask import Blueprint, request, jsonify
-from app.extensions import db, limiter
-from app.schemas.user_schema import UserSchema
-from app.models.user import User
+from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt, get_jwt_identity)
+from app.utils.custom_exceptions import NoDataError, InvalidCredentialsError, ExistingCredentialsError
 from app.utils.security import hash_password, check_password
 from app.utils.jwt import create_token_blocklist
-from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_required, get_jwt, get_jwt_identity)
-from marshmallow import ValidationError
-from app.utils.custom_exceptions import BadRequest, Unauthorized, ConflictError
+from flask import Blueprint, request, jsonify
+from app.schemas.user_schema import UserSchema
+from app.extensions import db, limiter
+from app.models.user import User
 
 auth_bp = Blueprint("auth", __name__, url_prefix = "/api/v1/auth")
 
@@ -26,19 +25,14 @@ def register():
     json_data = request.get_json()
     # Check for input
     if not json_data:
-        raise BadRequest("No input data provided")
-    
-    # Validate Input
-    errors = user_schema.validate(json_data)
-    if errors:
-        raise ValidationError(errors)
-    
-    # Deserialize data
+        raise NoDataError()
+ 
+    # Validate and deserialize data
     data = user_schema.load(json_data)
     
     # If user exists
     if User.query.filter_by(username = data["username"], email = data["email"]).first():
-        raise ConflictError("User with given username and email already exists")
+        raise ExistingCredentialsError()
     
     new_user = User(
         username = data["username"], 
@@ -59,7 +53,7 @@ def register():
 def login():
     json_data = request.get_json()
     if not json_data:
-        raise BadRequest("No input data provided")
+        raise NoDataError()
     
     username = json_data.get("username")
     password = json_data.get("password")
@@ -67,7 +61,7 @@ def login():
     user = User.query.filter_by(username = username).first()    
     
     if not user or not check_password(password, user.password):
-        raise Unauthorized("Invalid username or password")
+        raise InvalidCredentialsError()
     
     # Create both Access and Refresh Tokens
     additional_claims = {"role": user.role}

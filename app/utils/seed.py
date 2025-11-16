@@ -1,6 +1,6 @@
+from app.models.project import Project
 from .security import hash_password
 from app.models.user import User
-from app.models.project import Project
 from app.models.task import Task
 from app.extensions import db
 

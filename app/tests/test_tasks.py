@@ -7,20 +7,20 @@ def test_admin_get_all_tasks(client, admin_auth_headers):
     response = client.get(
         "/api/v1/projects/2/tasks/",
         headers = admin_auth_headers
-    )    
-    
+    )     
+       
     assert response.status_code == 200
-
+   
 def test_admin_get_a_task(client, admin_auth_headers):
     response = client.get(
-        "/api/v1/projects/2/tasks/3",
+        "/api/v1/projects/1/tasks/1",
         headers = admin_auth_headers
     )    
-    
+
     assert response.status_code == 200
 
 def test_admin_create_task(client, admin_auth_headers):
-    payload = {
+    payload = {     # Task #7 under Project #1
         "title": "Admin task test suite endpoint",
         "description": "Testing Endpoint for success",
         "project_id": "1"
@@ -37,6 +37,20 @@ def test_admin_create_task(client, admin_auth_headers):
     assert "id" in data
 
 def test_admin_update_task(client, admin_auth_headers):
+    payload = {     # Task #7 under Project #1
+        "title": "Admin task test suite endpoint",
+        "description": "Testing Endpoint for success",
+        "project_id": "1"
+    }   
+    
+    response = client.post(
+        "/api/v1/projects/1/tasks/create",
+        json = payload,
+        headers = admin_auth_headers
+    ) 
+    
+    assert response.status_code == 201
+    
     payload = {
         "title": "Admin update task test suite endpoint",
         "description": "Testing Endpoint for update success",
@@ -50,7 +64,32 @@ def test_admin_update_task(client, admin_auth_headers):
     ) 
     
     assert response.status_code == 200
+    data = response.get_json()
+    assert "id" in data
     
+def test_admin_delete_task(client, admin_auth_headers):
+    payload = {     # Task #7 under Project #1
+        "title": "Admin task test suite endpoint",
+        "description": "Testing Endpoint for success",
+        "project_id": "1"
+    }   
+    
+    response = client.post(
+        "/api/v1/projects/1/tasks/create",
+        json = payload,
+        headers = admin_auth_headers
+    ) 
+    
+    assert response.status_code == 201
+    
+    response = client.delete(
+        "/api/v1/projects/1/tasks/7",
+        headers = admin_auth_headers
+    )
+    
+    # Now there should be the original 6 seeded tasks
+    assert response.status_code == 204
+
 # ---- User Routes ----
     # --- Success Routes ---
 def test_user_get_all_tasks(client, user_auth_headers):
@@ -59,7 +98,10 @@ def test_user_get_all_tasks(client, user_auth_headers):
         headers = user_auth_headers
     )    
     
+    count = len(response.get_json())
+    
     assert response.status_code == 200
+    assert count == 2
     
 def test_user_get_a_task(client, user_auth_headers):
     response = client.get(
@@ -88,6 +130,20 @@ def test_user_create_task(client, user_auth_headers):
     
 def test_user_update_task(client, user_auth_headers):
     payload = {
+        "title": "User task test suite endpoint",
+        "description": "Testing Endpoint for success",
+        "project_id": "2"
+    }   
+    
+    response = client.post(
+        "/api/v1/projects/2/tasks/create",
+        json = payload,
+        headers = user_auth_headers
+    ) 
+    
+    assert response.status_code == 201
+    
+    payload = {
         "title": "User update task test suite endpoint",
         "description": "Testing Endpoint for update success",
         "project_id": "2"
@@ -100,10 +156,26 @@ def test_user_update_task(client, user_auth_headers):
     ) 
     
     assert response.status_code == 200
+    data = response.get_json()
+    assert "id" in data
     
 def test_user_remove_task(client, user_auth_headers):
+    payload = {
+        "title": "User task test suite endpoint",
+        "description": "Testing Endpoint for success",
+        "project_id": "2"
+    }   
+    
+    response = client.post(
+        "/api/v1/projects/2/tasks/create",
+        json = payload,
+        headers = user_auth_headers
+    ) 
+    
+    assert response.status_code == 201
+    
     response = client.delete(
-        "/api/v1/projects/2/tasks/8",
+        "/api/v1/projects/2/tasks/7",
         headers = user_auth_headers
     )
     
@@ -255,7 +327,7 @@ def test_user_update_task_invalid_data(client, user_auth_headers):
     }
     
     response = client.put(
-        "/api/v1/projects/2/tasks/7",
+        "/api/v1/projects/2/tasks/3",
         json = payload,
         headers = user_auth_headers
     ) 

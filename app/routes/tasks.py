@@ -1,13 +1,11 @@
-from flask import Blueprint, request, jsonify
-from app.extensions import db
-from app.models.task import Task
-from app.models.project import Project
-from app.schemas.task_schema import TaskSchema
+from app.utils.custom_exceptions import AccessDenied, ProjectNotFound, TaskNotFound, TaskIncorrectProject, NoDataError
 from flask_jwt_extended import get_jwt_identity, get_jwt, jwt_required
+from app.schemas.task_schema import TaskSchema
+from flask import Blueprint, request, jsonify
 from app.utils.security import role_required
-from app.utils.custom_exceptions import Forbidden, ResourceNotFound, BadRequest, UnprocessableEntity
-
-# Input: task_name, description, project_id
+from app.models.project import Project
+from app.models.task import Task
+from app.extensions import db
 
 task_bp = Blueprint("tasks", __name__, url_prefix = "/api/v1/projects/<int:project_id>/tasks")
 
@@ -22,13 +20,13 @@ tasks_schema = TaskSchema(many = True)
 def get_tasks(project_id: int):
     project = Project.query.filter_by(id = project_id).first()      # Get Project if exists
     if not project:
-        raise ResourceNotFound("Project not found.")
+        raise ProjectNotFound()
       
     current_user_id = int(get_jwt_identity())
     claims = get_jwt()
         
     if claims["role"] != "admin" and project.owner_id != current_user_id:    # Make sure proper ownership
-        raise Forbidden("Access Denied")  
+        raise AccessDenied()  
     
     tasks = Task.query.filter_by(project_id = project_id).all()
     
@@ -48,20 +46,20 @@ def get_tasks(project_id: int):
 def get_task(project_id: int, task_id: int):
     project = Project.query.filter_by(id = project_id).first()      # Get Project if exists
     if not project:
-        raise ResourceNotFound("Project not found.")
+        raise ProjectNotFound()
     
     current_user_id = int(get_jwt_identity())
     claims = get_jwt()
     
     if claims["role"] != "admin" and project.owner_id != current_user_id:
-        raise Forbidden("Access Denied")
+        raise AccessDenied()
     
     task = Task.query.filter_by(id = task_id).first() # Check if specific tasks exists
     if not task:
-        raise ResourceNotFound("Task not found.")
+        raise TaskNotFound()
     
     if task.project_id != project_id:
-        raise Forbidden("Access Denied")
+        raise TaskIncorrectProject()
     
     return task_schema.jsonify(task), 200
     
@@ -73,7 +71,7 @@ def get_task(project_id: int, task_id: int):
 def create_task(project_id: int):
     project = Project.query.filter_by(id = project_id).first()      # Get Project if exists
     if not project:
-        raise ResourceNotFound("Project not found.")
+        raise ProjectNotFound()
     
     current_user_id = int(get_jwt_identity())
     claims = get_jwt()
@@ -81,16 +79,11 @@ def create_task(project_id: int):
     
     # Check for input
     if not json_data:
-        raise BadRequest("No data provided.")
-    
-    # Validate Input
-    errors = task_schema.validate(json_data)
-    if errors:
-        raise UnprocessableEntity(errors)
+        raise NoDataError()
     
     # Check ownership
     if claims["role"] == "admin" or project.owner_id == current_user_id:
-        # Deserialize data    
+        # Validate and deserialize data    
         data = task_schema.load(json_data)
             
         task = Task(
@@ -102,7 +95,7 @@ def create_task(project_id: int):
         db.session.commit()
         return task_schema.jsonify(task), 201
     
-    raise Forbidden("Access Denied")
+    raise AccessDenied()
 
 
 # PUT /projects/<project_id>/tasks/<task_id>
@@ -112,29 +105,24 @@ def create_task(project_id: int):
 def update_task(project_id: int, task_id: int):
     project = Project.query.filter_by(id = project_id).first()      # Get Project if exists
     if not project:
-        raise ResourceNotFound("Project not found.")
+        raise ProjectNotFound()
     
     current_user_id = int(get_jwt_identity())
     claims = get_jwt()
     json_data = request.get_json()
     
     if claims["role"] != "admin" and project.owner_id != current_user_id:
-        raise Forbidden("Access Denied")
+        raise AccessDenied()
     
     if not json_data:
-        raise BadRequest("No data provided.")
-    
-    # Validate input
-    errors = task_schema.validate(json_data)
-    if errors:
-        raise UnprocessableEntity(errors)
+        raise NoDataError()
     
     # Check if task exists
     task = Task.query.filter_by(id = task_id).first()
     if not task:    
-        raise ResourceNotFound("Task not found.") 
+        raise TaskNotFound() 
     
-    # Deserialize data
+    # Validate and deserialize data
     data = task_schema.load(json_data)
     
     task.title = data["title"]
@@ -150,20 +138,20 @@ def update_task(project_id: int, task_id: int):
 def remove_task(project_id: int, task_id: int):
     project = Project.query.filter_by(id = project_id).first()      # Get Project if exists
     if not project:
-        raise ResourceNotFound("Project not found.")
+        raise ProjectNotFound()
     
     current_user_id = int(get_jwt_identity())
     claims = get_jwt()
     
     if claims["role"] != "admin" and project.owner_id != current_user_id:
-        raise Forbidden("Access Denied")
+        raise AccessDenied()
     
     task = Task.query.filter_by(id = task_id).first()
     if not task:    
-        raise ResourceNotFound("Task not found.") 
+        raise TaskNotFound() 
     
     if task.project_id != project_id:
-        raise Forbidden("Access Denied")
+        raise TaskIncorrectProject()
     
     db.session.delete(task)
     db.session.commit()

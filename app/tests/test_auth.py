@@ -21,16 +21,11 @@ def test_create_user(client):
     assert data["username"] == "Josue"
     assert data["email"] == "josue@test.com"    
     
-def test_login(client):
-    credentials = {
-        "username": "Josue",
-        "password": "123456789"
-    }
-    
+def test_login(client, test_user): 
     # Login
     response = client.post(
         "/api/v1/auth/login",
-        json = credentials, 
+        json = test_user, 
         content_type = "application/json"
     )
     
@@ -39,17 +34,10 @@ def test_login(client):
     assert "access_token" in data
     assert "refresh_token" in data
     
-def test_user_refresh_access_token(client):
-    
-    credentials = {
-        "username": "Josue",
-        "password": "123456789"
-    }
-    
-    # Login
+def test_user_refresh_access_token(client, test_user):
     response = client.post(
         "/api/v1/auth/login",
-        json = credentials, 
+        json = test_user, 
         content_type = "application/json"
     )
     
@@ -82,7 +70,7 @@ def test_registration_invalid_data(client):
         content_type = "application/json"
     )
     
-    assert response.status_code == 400
+    assert response.status_code == 422
     data = response.get_json()
     assert "error" in data
     assert "username" in data["message"]
@@ -141,9 +129,9 @@ def test_login_no_data(client):
     assert "message" in data
     
         
-def test_login_invalid_password(client):
+def test_login_invalid_password(client, test_user):
     credentials = {
-        "username": "Manuel",
+        "username": test_user["username"],
         "password": "asdfg"
     }
     
@@ -158,10 +146,10 @@ def test_login_invalid_password(client):
     data = response.get_json()
     assert "message" in data  
 
-def test_login_invalid_username(client):
+def test_login_invalid_username(client, test_user):
     credentials = {
         "username": "Manuela",
-        "password": "asdfghjkl"
+        "password": test_user["password"]
     }
     
     # Login

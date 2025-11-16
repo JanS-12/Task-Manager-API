@@ -20,8 +20,8 @@ def test_admin_get_user(client, admin_auth_headers):
     )
     assert response.status_code == 200  
     
-def test_admin_update_user(client, admin_auth_headers):
-    payload = {
+def test_admin_update_user(client, test_user, admin_auth_headers):    
+    payload = { # User created in test_auth
         "username": "Junior",
         "email": "junior@test.com",
         "password": "123456789",
@@ -29,25 +29,33 @@ def test_admin_update_user(client, admin_auth_headers):
     }
     
     response = client.put(
-        "/api/v1/users/5", 
+        "/api/v1/users/4", 
         json = payload,
         headers = admin_auth_headers
     )
     
     assert response.status_code == 200
     
-def test_admin_user_delete(client, admin_auth_headers):
+def test_admin_user_delete(client, test_user, admin_auth_headers):
     response = client.delete(
-        "/api/v1/users/5",
+        "/api/v1/users/4",
         headers = admin_auth_headers
     )
     
     assert response.status_code == 204
     
     # ----- Failure Routes --------
+def test_admin_get_user_not_found(client, admin_auth_headers):  
+    response = client.get(
+        "/api/v1/users/0",
+        headers = admin_auth_headers
+    )
+    
+    assert response.status_code == 404
+    
 def test_admin_delete_user_not_found(client, admin_auth_headers):
     response = client.delete(
-        "/api/v1/users/15",
+        "/api/v1/users/0",
         headers = admin_auth_headers
     )
     
@@ -130,7 +138,7 @@ def test_user_update_user_not_found(client, user_auth_headers):
     }    
     
     response = client.put(
-        "/api/v1/users/15",
+        "/api/v1/users/0",
         json = payload,
         headers = user_auth_headers
     )
@@ -146,7 +154,7 @@ def test_user_update_wrong_user(client, user_auth_headers):
     }    
     
     response = client.put(
-        "/api/v1/users/3",
+        "/api/v1/users/1",
         json = payload,
         headers = user_auth_headers
     )

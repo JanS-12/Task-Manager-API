@@ -2,7 +2,7 @@ import pytest
 from app import create_app
 from app.extensions import db
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def app():
     app = create_app("testing")
     with app.app_context():
@@ -14,10 +14,6 @@ def app():
 @pytest.fixture()
 def client(app):
     return app.test_client()        
-
-@pytest.fixture()
-def runner(app):
-    return app.test_cli_runner()
 
 @pytest.fixture()
 def admin_auth_headers(client):
@@ -55,4 +51,20 @@ def user_auth_headers(client):
     header = {"Authorization": f"Bearer {token}"}
     return header
 
+@pytest.fixture()
+def test_user(client):
+    payload =  {
+        "username": "Jael",
+        "password": "asdfghjkl",
+        "email": "jael@test.com",
+        "role": "user"
+    }
+    
+    client.post(
+        "/api/v1/auth/register",
+        json = payload, 
+        content_type = "application/json"
+    )
+    
+    return {"username": payload["username"], "password": payload["password"]}
     

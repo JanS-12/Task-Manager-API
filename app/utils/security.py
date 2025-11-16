@@ -1,7 +1,7 @@
-import bcrypt
+from flask_jwt_extended import get_jwt
 from functools import wraps
 from flask import jsonify
-from flask_jwt_extended import get_jwt
+import bcrypt
 
 def hash_password(plaintext: str) -> str:
     hashed = bcrypt.hashpw(plaintext.encode("utf-8"), bcrypt.gensalt())
