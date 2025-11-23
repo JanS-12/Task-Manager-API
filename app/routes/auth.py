@@ -2,14 +2,20 @@ from flask_jwt_extended import (create_access_token, create_refresh_token, jwt_r
 from app.utils.custom_exceptions import NoDataError, InvalidCredentialsError, ExistingCredentialsError
 from app.utils.security import hash_password, check_password
 from app.utils.jwt import create_token_blocklist
-from flask import Blueprint, request, jsonify
 from app.schemas.user_schema import UserSchema
+from flask import Blueprint, request, jsonify
+from app.utils.logging import get_logger
 from app.extensions import db, limiter
 from app.models.user import User
 
-auth_bp = Blueprint("auth", __name__, url_prefix = "/api/v1/auth")
 
+auth_bp = Blueprint("auth", __name__, url_prefix = "/api/v1/auth")
 user_schema = UserSchema()
+
+# Loggers 
+app_logger = get_logger("app")
+auth_logger = get_logger("auth")
+audit_logger = get_logger("audit")
 
 # GET --> /api/v1/auth/health
 @auth_bp.route("/health", methods=["GET"])
@@ -22,6 +28,7 @@ def health_check():
 @auth_bp.route("/register", methods=["POST"])
 @limiter.limit("20 per minute")
 def register():
+    app_logger.info("Register endpoint reached.")
     json_data = request.get_json()
     # Check for input
     if not json_data:
@@ -44,19 +51,26 @@ def register():
     db.session.add(new_user)
     db.session.commit()
     
+    auth_logger.info(f"New user registered: \"{new_user.username}\" (\"{new_user.email}\")", extra={
+            "endpoint": "/auth/register", 
+            "ip": request.remote_addr, 
+            "event": "registration successful" 
+        })
     return user_schema.jsonify(new_user), 201
 
 
 # Login --> POST "/api/v1/auth/login"
 @auth_bp.route("/login", methods=["POST"])
 @limiter.limit("100 per minute") 
-def login():
+def login():   
     json_data = request.get_json()
     if not json_data:
         raise NoDataError()
     
     username = json_data.get("username")
     password = json_data.get("password")
+    
+    app_logger.info(f"Login attempt by \"{username}\".")
     
     user = User.query.filter_by(username = username).first()    
     
@@ -84,6 +98,12 @@ def login():
     db.session.add_all(tokens_blocklist)
     db.session.commit()   
     
+    auth_logger.info(f"User \"{username}\" logged in succesfully.", extra = {
+        "path": request.path, 
+        "ip": request.remote_addr, 
+        "event": "User Login"
+    })
+    audit_logger.info(f"User \"{username}\" logged in succesfully.")
     return jsonify(access_token = access_token, refresh_token = refresh_token), 200
 
 
@@ -94,8 +114,20 @@ def refresh_access_token():
     current_user_id = str(get_jwt_identity())
     role = {"role": f"{get_jwt()["role"]}"}
     
+    auth_logger.info(f"User with user_id \'{current_user_id}\' requested a new access token", extra = {
+        "path": request.path, 
+        "ip": request.remote_addr, 
+        "event": "Refresh Token"
+    })
+    
     new_access_token = create_access_token(identity = current_user_id, additional_claims = role)
     token_blocklist = create_token_blocklist(new_access_token)
     db.session.add(token_blocklist)
     db.session.commit()
+    
+    auth_logger.info(f"New access token created with jti \"{token_blocklist.jti}\" for user ID \'{current_user_id}\'.", extra={
+        "path": request.path,
+        "ip": request.remote_addr,
+        "event": "Access Token Refresh"
+    })
     return jsonify(access_token = new_access_token), 200

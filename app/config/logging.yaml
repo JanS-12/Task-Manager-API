@@ -1,0 +1,100 @@
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  json: # Info --> Regural Operations [All]
+    format: >
+      {
+       "timestamp": "%(asctime)s",
+       "level": "%(levelname)s",
+       "logger": "%(name)s",
+       "message": "%(message)s",
+       "module": "%(module)s",
+       "line": %(lineno)d
+      }
+
+  request: # Detailed --> Technical Operations
+    format: >
+      {
+       "timestamp": "%(asctime)s",
+       "level": "%(levelname)s",
+       "logger": "%(name)s",
+       "message": "%(message)s",
+       "path": "%(path)s",
+       "method": "%(method)s",
+       "client_ip": "%(client_ip)s",
+       "status_code": "%(status_code)d"
+      }
+  
+  error: # Error --> Details for Error Handling
+    format: > 
+      {
+       "timestamp": "%(asctime)s",
+       "level": "%(levelname)s",
+       "logger": "%(name)s",
+       "message": "%(message)s",
+       "client_ip": "%(client_ip)s",
+       "error_type": "%(error_type)s",
+       "status_code": "%(status_code)d"
+      }
+
+handlers:
+  app_handler:
+    class: logging.FileHandler
+    level: INFO
+    formatter: json
+    filename: app/logs/app.log
+
+  auth_handler:
+    class: logging.FileHandler
+    level: INFO
+    formatter: json
+    filename: app/logs/auth.log
+
+  audit_handler:
+    class: logging.FileHandler
+    level: INFO
+    formatter: json
+    filename: app/logs/audit.log
+
+  error_handler:
+    class: logging.FileHandler
+    level: INFO
+    formatter: error
+    filename: app/logs/error.log  
+
+  security_handler:
+    class: logging.FileHandler
+    level: WARNING
+    formatter: request
+    filename: app/logs/security.log  
+
+loggers:
+  app:
+    level: INFO
+    handlers: [app_handler]
+    propagate: no
+
+  auth:
+    level: INFO
+    handlers: [auth_handler]
+    propagate: no
+  
+  security:
+    level: WARNING
+    handlers: [security_handler]
+    propagate: no
+
+  error:
+    level: WARNING
+    handlers: [error_handler]
+    propagate: no
+
+  audit:
+    level: INFO
+    handlers: [audit_handler, app_handler]
+    propagate: no
+
+root:
+  level: INFO
+  handlers: [error_handler]

@@ -1,11 +1,15 @@
 from app.utils.custom_exceptions import AppException
 from werkzeug.exceptions import HTTPException
 from marshmallow import ValidationError
+from ..utils.logging import get_logger
 from flask import jsonify
+
+error_logger = get_logger("error")
 
 def register_error_handlers(app):
     @app.errorhandler(ValidationError)
     def handle_validation_error(e):
+        
         return jsonify(error="Unprocessable Entity", message=e.messages, status_code = 422), 422
     
     @app.errorhandler(AppException)
