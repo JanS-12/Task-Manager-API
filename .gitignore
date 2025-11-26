@@ -30,7 +30,7 @@ instance/
 *.sqlite3
 
 # Logs
-logs/
+*.log
 
 # Environment variables
 .env

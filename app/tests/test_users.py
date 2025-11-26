@@ -75,7 +75,7 @@ def test_user_get_user(client, user_auth_headers):
     
 def test_user_logout(client, user_auth_headers):
     response = client.post(
-        "/api/v1/users/logout",
+        "/api/v1/auth/logout",
         headers = user_auth_headers
     )
     

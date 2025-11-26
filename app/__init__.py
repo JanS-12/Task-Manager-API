@@ -3,7 +3,7 @@ from .utils.error_handlers import register_error_handlers
 from app.models.token_blocklist import TokenBlocklist
 from .extensions import db, ma, jwt, limiter
 from .utils.seed import seed_data
-from flask  import Flask
+from flask import Flask
 import logging.config
 import yaml
 
@@ -40,16 +40,15 @@ def create_app(config_name = "default"):
         logger.info("Database Seeded Succesfully")
 
     # Register blueprints
+    logger.info("Registering Blueprints")
     app.register_blueprint(user_bp)
     app.register_blueprint(project_bp)
     app.register_blueprint(task_bp)
     app.register_blueprint(auth_bp)
     
-    logger.info("Registering Blueprints")
-    
     # Register error handlers
-    register_error_handlers(app)
     logger.info("Registering Error Handlers")
+    register_error_handlers(app)
     logger.info("App Created Succesfully!")
     return app  
 
