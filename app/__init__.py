@@ -1,8 +1,17 @@
 from .routes import user_bp, project_bp, task_bp, auth_bp
 from .utils.error_handlers import register_error_handlers
-from app.models.token_blocklist import TokenBlocklist
+from .repositories.project_repo import ProjectRepository
+from .repositories.token_repo import TokenRepository
+from .services.project_service import ProjectService
+from .repositories.task_repo import TaskRepository
+from .repositories.user_repo import UserRepository
+from .models.token_blocklist import TokenBlocklist
+from .services.task_service import TaskService
+from .services.auth_service import AuthService
+from .services.user_service import UserService
 from .extensions import db, ma, jwt, limiter
 from .utils.seed import seed_data
+from .di_container import DI
 from flask import Flask
 import logging.config
 import yaml
@@ -31,6 +40,17 @@ def create_app(config_name = "default"):
     jwt.init_app(app)
     limiter.init_app(app)
     logger.info("Initializing Extensions")
+    
+    # Register DI Wiring
+    DI.token_repository = TokenRepository()
+    DI.user_repository = UserRepository()
+    DI.project_repository = ProjectRepository()
+    DI.task_repository = TaskRepository()
+    
+    DI.user_service = UserService(DI.user_repository)
+    DI.auth_service = AuthService(DI.token_repository, DI.user_service)
+    DI.project_service = ProjectService(DI.user_service, DI.project_repository)
+    DI.task_service = TaskService(DI.task_repository, DI.project_service, DI.user_service)
     
     # Create tables
     with app.app_context():

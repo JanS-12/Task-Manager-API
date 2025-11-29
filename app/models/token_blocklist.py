@@ -1,5 +1,5 @@
-from app.extensions import db
 from sqlalchemy.sql import func
+from app.extensions import db
 
 class TokenBlocklist(db.Model):
     __tablename__ = "token_blocklist"

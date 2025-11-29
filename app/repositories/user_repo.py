@@ -1,7 +1,7 @@
+from app.utils.security import hash_password
 from app.models.user import User
 from app.extensions import db
 from flask import jsonify
-from app.utils.security import hash_password
 
 # Handles all database CRUD functionalities
 class UserRepository:
@@ -17,7 +17,7 @@ class UserRepository:
         return user
 
     def get_by_id(self, id):
-        return User.query.get(id)
+        return User.query.filter_by(id = id).first()
     
     def get_by_username(self, username):
         return User.query.filter_by(username = username).first()
@@ -29,7 +29,7 @@ class UserRepository:
         return User.query.all()
     
     def update(self, id, data):
-        user = User.query.get(id)
+        user = User.query.filter_by(id = id).first()
         
         if "username" in data: user.username = data["username"]
         if "email" in data: user.email = data["email"]
@@ -41,7 +41,7 @@ class UserRepository:
         
     def delete(self, id):
         try:
-            user = User.query.get(id)
+            user = User.query.filter_by(id = id).first()
             db.session.delete(user)
             return jsonify({"message": "User deleted successfully"})
         except ExceptionGroup as e:

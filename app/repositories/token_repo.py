@@ -6,6 +6,7 @@ from app.extensions import db
 
 auth_logger = get_logger("auth")
 
+# Handles all CRUD for Tokens
 class TokenRepository():
     def create_token_to_blacklist(self, token):
         jti = decode_token(token)["jti"]

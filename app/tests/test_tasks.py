@@ -159,7 +159,7 @@ def test_user_update_task(client, user_auth_headers):
     data = response.get_json()
     assert "id" in data
     
-def test_user_remove_task(client, user_auth_headers):
+def test_user_delete_task(client, user_auth_headers):
     payload = {
         "title": "User task test suite endpoint",
         "description": "Testing Endpoint for success",

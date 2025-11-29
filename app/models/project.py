@@ -1,5 +1,5 @@
-from app.extensions import db
 from sqlalchemy.sql import func
+from app.extensions import db
 
 # Projects Table in DB
 class Project(db.Model):

@@ -1,5 +1,5 @@
-from app.extensions import db
 from sqlalchemy.sql import func
+from app.extensions import db
 
 # Tasks Table in DB
 class Task(db.Model):

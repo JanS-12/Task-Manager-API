@@ -5,6 +5,7 @@ from app.schemas.user_schema import UserSchema
 from app.utils.logging import get_logger
 from datetime import datetime
 
+auth_logger = get_logger("auth")
 audit_logger = get_logger("audit")
 
 # Handles all user business logicclea
@@ -83,7 +84,6 @@ class UserService:
         return user
         
     def delete_user(self, user_id, requester_id):
-        # Business rules
         user = self.user_repo.get_by_id(user_id)
         requester = self.user_repo.get_by_id(requester_id)
         
@@ -100,7 +100,7 @@ class UserService:
             {"revoked_at": datetime.now()}, 
             synchronize_session = False
         )
-        # auth_logger.info(f"All active tokens for user \"{user.username}\" were revoked.")
+        auth_logger.info(f"All active tokens for user \"{user.username}\" were revoked.")
         
         message = self.user_repo.delete(user.id)
         audit_logger.info(f"User that had ID \'{user_id}\' has been removed.")

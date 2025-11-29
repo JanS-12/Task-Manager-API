@@ -1,4 +1,4 @@
-from app.utils.custom_exceptions import NoDataError, InvalidCredentialsError, ExistingCredentialsError, UserNotFound
+from app.utils.custom_exceptions import NoDataError, InvalidCredentialsError, ExistingCredentialsError
 from flask_jwt_extended import (create_access_token, create_refresh_token)
 from app.repositories.token_repo import TokenRepository
 from app.services.user_service import UserService
@@ -64,8 +64,6 @@ class AuthService():
     
     def logout(self, user_id):
         user = self.user_service.get_user(user_id, user_id)
-        if not user:
-            raise UserNotFound()
         
         self.auth_repo.revoke_active_tokens(user_id)
         audit_logger.info(f"User \'{user.username}\' logged out.")
@@ -73,8 +71,6 @@ class AuthService():
     # Function to be called indirectly by the front-end client
     def refresh_access_token(self, requester_id):
         user = self.user_service.get_user(requester_id, requester_id)
-        if not user:
-            raise UserNotFound()
         
         # New access token
         access_token = create_access_token(

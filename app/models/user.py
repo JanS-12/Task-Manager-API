@@ -1,5 +1,5 @@
-from app.extensions import db
 from sqlalchemy.sql import func
+from app.extensions import db
 
 # Users Table in DB
 class User(db.Model):
