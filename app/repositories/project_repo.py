@@ -39,7 +39,7 @@ class ProjectRepository:
         return project
     
     def delete_project(self, project_id):
-        project = Project.query.get(project_id)
+        project = Project.query.filter_by(id = project_id).first()
         db.session.delete(project)
         db.session.commit()
 

@@ -28,6 +28,7 @@ class ProjectService():
             
         return projects
     
+    
     def get_a_project(self, project_id, requester_id):
         user = self.user_service.get_user(requester_id, requester_id)
         
@@ -53,6 +54,7 @@ class ProjectService():
         audit_logger.info(f"User \"{user.username}\" has created project \"{project.title}\" with ID \'{project.id}\'.")
         return project
     
+    
     def update_project(self, data, project_id, requester_id):
         if not data: 
             raise NoDataError()
@@ -70,6 +72,7 @@ class ProjectService():
         project = self.project_repo.update_project(project_id, project_data)
         audit_logger.info(f"User \"{user.username}\" has updated project with ID \'{project.id}\', \"{project.title}\".")
         return project
+    
     
     def remove_project(self, project_id, requester_id):
         project = self.project_repo.get_a_project(project_id)

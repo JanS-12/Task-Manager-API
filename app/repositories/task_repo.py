@@ -34,7 +34,7 @@ class TaskRepository:
         return task
     
     def remove_task(self, task_id):
-        task = Task.query.get(task_id)
+        task = Task.query.filter_by(id = task_id).first()
         db.session.delete(task)
         db.session.commit()
         

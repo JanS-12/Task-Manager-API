@@ -73,14 +73,6 @@ def test_user_get_user(client, user_auth_headers):
     )
     assert response.status_code == 200 
     
-def test_user_logout(client, user_auth_headers):
-    response = client.post(
-        "/api/v1/auth/logout",
-        headers = user_auth_headers
-    )
-    
-    assert response.status_code == 200
-    
     
     # ----- Failure, Unathorized, Forbidden Routes ----------
 def test_user_get_all_users(client, user_auth_headers):

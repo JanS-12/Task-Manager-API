@@ -35,6 +35,7 @@ class TaskService:
 
         return tasks
     
+    
     def get_a_task(self, project_id, task_id, requester_id):
         user = self.user_service.get_user(requester_id, requester_id)
         project = self.project_service.get_a_project(project_id, user.id)
@@ -52,6 +53,7 @@ class TaskService:
         audit_logger.info(f"User \"{user.username}\" retrieved task \"{task.title}\" with ID \'{task.id}\' from project \"{project.title}\".")
         return task
     
+    
     def create_task(self, data, project_id, requester_id):
         if not data:
             raise NoDataError()
@@ -66,6 +68,7 @@ class TaskService:
         task = self.task_repo.create_task(project_id, task_data)
         audit_logger.info(f"User \"{user.username}\" created task \"{task.title}\" with ID \'{task.id}\', under project \"{project.title}\".")
         return task
+    
     
     def update_task(self, data, project_id, task_id, requester_id):
         if not data:
@@ -89,6 +92,7 @@ class TaskService:
         
         audit_logger.info(f"User \"{user.username}\" has updated task with ID \'{task.id}\', \"{task.title}\".")
         return task
+    
     
     def remove_task(self, project_id, task_id, requester_id):
         user = self.user_service.get_user(requester_id, requester_id)

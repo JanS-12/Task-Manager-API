@@ -1,3 +1,16 @@
+from .controllers.users.profile_controller import GetUserProfileController, GetAllUserProfileController
+from .controllers.users.registration_controller import RegistrationController
+from .services.users.profile_service import GetUserProfileService, GetAllUsersProfileService
+from .services.users.registration_service import RegistrationService
+from .services.users.login_service import LoginService
+from .controllers.users.login_controller import LoginController
+from .controllers.users.logout_controller import LogoutController
+from .services.users.logout_service import LogoutService
+from .controllers.users.update_controller import UpdateUserController
+from .services.users.update_service import UpdateUserService
+from .controllers.users.remove_controller import RemoveUserController
+from .services.users.remove_service import RemoveUserService
+
 from .routes import user_bp, project_bp, task_bp, auth_bp
 from .utils.error_handlers import register_error_handlers
 from .repositories.project_repo import ProjectRepository
@@ -9,9 +22,10 @@ from .models.token_blocklist import TokenBlocklist
 from .services.task_service import TaskService
 from .services.auth_service import AuthService
 from .services.user_service import UserService
+
 from .extensions import db, ma, jwt, limiter
 from .utils.seed import seed_data
-from .di_container import DI
+from .containers.user_container import DI
 from flask import Flask
 import logging.config
 import yaml
@@ -47,10 +61,33 @@ def create_app(config_name = "default"):
     DI.project_repository = ProjectRepository()
     DI.task_repository = TaskRepository()
     
+    
     DI.user_service = UserService(DI.user_repository)
     DI.auth_service = AuthService(DI.token_repository, DI.user_service)
     DI.project_service = ProjectService(DI.user_service, DI.project_repository)
     DI.task_service = TaskService(DI.task_repository, DI.project_service, DI.user_service)
+    
+    # New SRP and OCP (Workflows)
+    DI.user_profile_service = GetUserProfileService(DI.user_repository)
+    DI.user_profile_controller = GetUserProfileController(DI.user_profile_service)
+    
+    DI.users_profile_service = GetAllUsersProfileService(DI.user_repository)
+    DI.users_profile_controller = GetAllUserProfileController(DI.users_profile_service)
+    
+    DI.registration_service = RegistrationService(DI.user_repository)
+    DI.registration_controller = RegistrationController(DI.registration_service)
+    
+    DI.login_service = LoginService(DI.token_repository, DI.user_repository)
+    DI.login_controller = LoginController(DI.login_service)
+    
+    DI.logout_service = LogoutService(DI.user_repository, DI.token_repository)
+    DI.logout_controller = LogoutController(DI.logout_service)
+    
+    DI.update_service = UpdateUserService(DI.user_repository)
+    DI.update_controller = UpdateUserController(DI.update_service)
+    
+    DI.remove_service = RemoveUserService(DI.user_repository, DI.token_repository)
+    DI.remove_controller = RemoveUserController(DI.remove_service)
     
     # Create tables
     with app.app_context():

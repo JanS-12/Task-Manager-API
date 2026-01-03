@@ -2,7 +2,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.schemas.task_schema import TaskSchema
 from flask import Blueprint, request, jsonify
 from app.utils.security import role_required
-from app.di_container import DI
+from app.containers.user_container import DI
 
 task_bp = Blueprint("tasks", __name__, url_prefix = "/api/v1/projects/<int:project_id>/tasks")
 

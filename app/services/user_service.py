@@ -8,7 +8,7 @@ from datetime import datetime
 auth_logger = get_logger("auth")
 audit_logger = get_logger("audit")
 
-# Handles all user business logicclea
+# Handles all user business logic
 class UserService:
     def __init__(self, user_repo: UserRepository):
         self.user_repo = user_repo
