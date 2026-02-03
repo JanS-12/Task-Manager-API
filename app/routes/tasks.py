@@ -2,7 +2,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.schemas.task_schema import TaskSchema
 from flask import Blueprint, request, jsonify
 from app.utils.security import role_required
-from app.containers.user_container import DI
+from app.containers.user_container import User_DI
 
 task_bp = Blueprint("tasks", __name__, url_prefix = "/api/v1/projects/<int:project_id>/tasks")
 
@@ -15,7 +15,7 @@ tasks_schema = TaskSchema(many = True)
 @jwt_required()
 @role_required(["user", "admin"])
 def get_tasks(project_id: int):
-    tasks = DI.task_service.get_all_tasks(project_id, int(get_jwt_identity()))
+    tasks = User_DI.task_service.get_all_tasks(project_id, int(get_jwt_identity()))
     return tasks_schema.jsonify(tasks), 200
 
 
@@ -24,7 +24,7 @@ def get_tasks(project_id: int):
 @jwt_required()
 @role_required(["user", "admin"])
 def get_task(project_id: int, task_id: int):
-    task = DI.task_service.get_a_task(project_id, task_id, int(get_jwt_identity()))
+    task = User_DI.task_service.get_a_task(project_id, task_id, int(get_jwt_identity()))
     return task_schema.jsonify(task), 200
 
 
@@ -35,7 +35,7 @@ def get_task(project_id: int, task_id: int):
 def create_task(project_id: int):
     data = request.get_json()
     current_user_id = int(get_jwt_identity())
-    task = DI.task_service.create_task(data, project_id, current_user_id)
+    task = User_DI.task_service.create_task(data, project_id, current_user_id)
     return task_schema.jsonify(task), 201
 
 
@@ -46,7 +46,7 @@ def create_task(project_id: int):
 def update_task(project_id: int, task_id: int):    
     current_user_id = int(get_jwt_identity())
     json_data = request.get_json()
-    task = DI.task_service.update_task(json_data, project_id, task_id, current_user_id)
+    task = User_DI.task_service.update_task(json_data, project_id, task_id, current_user_id)
     return task_schema.jsonify(task), 200
     
     
@@ -56,6 +56,6 @@ def update_task(project_id: int, task_id: int):
 @role_required(["user", "admin"])
 def remove_task(project_id: int, task_id: int):
     current_user_id = int(get_jwt_identity())
-    DI.task_service.remove_task(project_id, task_id, current_user_id)
+    User_DI.task_service.remove_task(project_id, task_id, current_user_id)
     return jsonify(message = ""), 204 
       
