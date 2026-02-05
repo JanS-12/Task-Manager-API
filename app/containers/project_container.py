@@ -5,6 +5,12 @@ from app.controllers.projects.retrieve_projects import GetProjectsController
 from app.services.projects.create_project import CreateProjectService
 from app.controllers.projects.create_project import CreateProjectController
 
+from app.controllers.projects.update_project import UpdateProjectController
+from app.services.projects.update_project import UpdateProjectService
+
+from app.services.projects.remove_project import RemoveProjectService
+from app.controllers.projects.remove_project import RemoveProjectController
+
 # Repos
 from app.repositories.project_repo import ProjectRepository
 from app.repositories.token_repo import TokenRepository
@@ -48,4 +54,8 @@ class Project_DI:
         Project_DI.create_project_service = CreateProjectService(Project_DI.project_repository, Project_DI.user_repository)
         Project_DI.create_project_controller = CreateProjectController(Project_DI.create_project_service)
         
+        Project_DI.update_project_service = UpdateProjectService(Project_DI.project_repository, Project_DI.user_repository)
+        Project_DI.update_project_controller = UpdateProjectController(Project_DI.update_project_service)
         
+        Project_DI.remove_project_service = RemoveProjectService(Project_DI.project_repository, Project_DI.user_repository)
+        Project_DI.remove_project_controller = RemoveProjectController(Project_DI.remove_project_service)

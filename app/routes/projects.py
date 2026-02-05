@@ -17,7 +17,7 @@ projects_schema = ProjectSchema(many = True)
 @jwt_required()
 @role_required(["user", "admin"])
 def get_projects():   
-   return Project_DI.retrieve_projects_controller.get_projects(int(get_jwt_identity()))
+      return Project_DI.retrieve_projects_controller.get_projects(int(get_jwt_identity()))
 
 
 # GET /projects/<int:project_id> ---> List a project
@@ -25,7 +25,7 @@ def get_projects():
 @jwt_required()
 @role_required(["user", "admin"])
 def get_project(project_id: int):
-   return Project_DI.retrieve_project_controller.get_project(project_id, int(get_jwt_identity()))
+      return Project_DI.retrieve_project_controller.get_project(project_id, int(get_jwt_identity()))
 
 
 # POST /projects/create ---> Create a Project
@@ -33,17 +33,17 @@ def get_project(project_id: int):
 @jwt_required()
 @role_required(["user", "admin"])
 def create_project():
-   return Project_DI.create_project_controller.create_project(request.get_json(), int(get_jwt_identity()))
+      return Project_DI.create_project_controller.create_project(request.get_json(), int(get_jwt_identity()))
 
 # PUT /projects/<project_id> --> Update a project
 @project_bp.route("/<int:project_id>", methods=["PUT"])
 @jwt_required()
 @role_required(["user", "admin"])
 def update_project(project_id: int):
-    current_user_id = int(get_jwt_identity())
-    data = request.get_json() 
-    project = User_DI.project_service.update_project(data, project_id, current_user_id) 
-    return project_schema.jsonify(project), 200
+      current_user_id = int(get_jwt_identity())
+      data = request.get_json() 
+      return Project_DI.update_project_controller.update_project(data, project_id, current_user_id) 
+    
     
     
 # DELETE /projects/<project_id> --> Delete a project and its tasks
@@ -51,5 +51,5 @@ def update_project(project_id: int):
 @jwt_required()
 @role_required(["user", "admin"])
 def remove_project(project_id: int):
-    User_DI.project_service.remove_project(project_id, int(get_jwt_identity()))
-    return jsonify(message = ""), 204
+      Project_DI.remove_project_controller.remove_project(project_id, int(get_jwt_identity()))
+      return jsonify(message = ""), 204
