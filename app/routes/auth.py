@@ -1,12 +1,10 @@
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from app.schemas.user_schema import UserSchema
+from app.containers.user_container import User_DI
 from app.utils.security import  role_required
 from flask import Blueprint, request, jsonify
 from app.extensions import limiter
-from app.containers.user_container import User_DI
 
 auth_bp = Blueprint("auth", __name__, url_prefix = "/api/v1/auth")
-user_schema = UserSchema()
 
 # GET --> /api/v1/auth/health
 @auth_bp.route("/health", methods=["GET"])

@@ -1,28 +1,24 @@
-from app.controllers.users.profile_controller import GetUserProfileController, GetAllUserProfileController
-from app.controllers.users.registration_controller import RegistrationController
 from app.services.users.profile_service import GetUserProfileService, GetAllUsersProfileService
 from app.services.users.registration_service import RegistrationService
-from app.services.users.login_service import LoginService
-from app.controllers.users.login_controller import LoginController
-from app.controllers.users.logout_controller import LogoutController
-from app.services.users.logout_service import LogoutService
-from app.controllers.users.update_controller import UpdateUserController
 from app.services.users.update_service import UpdateUserService
-from app.controllers.users.remove_controller import RemoveUserController
 from app.services.users.remove_service import RemoveUserService
+from app.services.users.logout_service import LogoutService
+from app.services.users.login_service import LoginService
 
-# Old
-from app.services.task_service import TaskService
-from app.services.auth_service import AuthService
-from app.services.user_service import UserService
-from app.services.project_service import ProjectService
+from app.controllers.users.profile_controller import GetUserProfileController, GetAllUserProfileController
+from app.controllers.users.registration_controller import RegistrationController
+from app.controllers.users.update_controller import UpdateUserController
+from app.controllers.users.remove_controller import RemoveUserController
+from app.controllers.users.logout_controller import LogoutController
+from app.controllers.users.login_controller import LoginController
 
-# Repos
 from app.repositories.project_repo import ProjectRepository
 from app.repositories.token_repo import TokenRepository
 from app.repositories.task_repo import TaskRepository
 from app.repositories.user_repo import UserRepository
 
+from app.services.auth_service import AuthService
+from app.services.user_service import UserService
 class User_DI:
     user_repository = None
     token_repository = None
@@ -31,10 +27,7 @@ class User_DI:
     
     auth_service = None
     user_service = None
-    project_service = None
-    task_service = None
     
-    # New -> SRP and OCP -- Services and Controllers
     user_profile_service = None
     user_profile_controller = None
     
@@ -62,13 +55,9 @@ class User_DI:
         User_DI.project_repository = ProjectRepository()
         User_DI.task_repository = TaskRepository()
         
-        
         User_DI.user_service = UserService(User_DI.user_repository)
         User_DI.auth_service = AuthService(User_DI.token_repository, User_DI.user_service)
-        User_DI.project_service = ProjectService(User_DI.user_service, User_DI.project_repository)
-        User_DI.task_service = TaskService(User_DI.task_repository, User_DI.project_service, User_DI.user_service)
         
-        # New SRP and OCP (Workflows)
         User_DI.user_profile_service = GetUserProfileService(User_DI.user_repository)
         User_DI.user_profile_controller = GetUserProfileController(User_DI.user_profile_service)
         

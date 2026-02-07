@@ -1,13 +1,9 @@
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from app.schemas.task_schema import TaskSchema
+from app.containers.task_container import Task_DI
 from flask import Blueprint, request, jsonify
 from app.utils.security import role_required
-from app.containers.user_container import User_DI
 
 task_bp = Blueprint("tasks", __name__, url_prefix = "/api/v1/projects/<int:project_id>/tasks")
-
-task_schema = TaskSchema()
-tasks_schema = TaskSchema(many = True)
 
 # GET /projects/<project_id>/tasks --> get all tasks for a project
 @task_bp.route("", methods=["GET"])
@@ -15,8 +11,7 @@ tasks_schema = TaskSchema(many = True)
 @jwt_required()
 @role_required(["user", "admin"])
 def get_tasks(project_id: int):
-    tasks = User_DI.task_service.get_all_tasks(project_id, int(get_jwt_identity()))
-    return tasks_schema.jsonify(tasks), 200
+    return Task_DI.retrieve_tasks_controller.get_tasks(project_id, int(get_jwt_identity()))
 
 
 # GET /projects/<project_id>/tasks/<task_id> --> get a task for a project
@@ -24,9 +19,8 @@ def get_tasks(project_id: int):
 @jwt_required()
 @role_required(["user", "admin"])
 def get_task(project_id: int, task_id: int):
-    task = User_DI.task_service.get_a_task(project_id, task_id, int(get_jwt_identity()))
-    return task_schema.jsonify(task), 200
-
+    return Task_DI.retrieve_task_controller.get_task(project_id, task_id, int(get_jwt_identity()))
+    
 
 # POST /projects/<project_id>/tasks/create  --> Create a task for a project
 @task_bp.route("/create", methods=["POST"])
@@ -35,9 +29,8 @@ def get_task(project_id: int, task_id: int):
 def create_task(project_id: int):
     data = request.get_json()
     current_user_id = int(get_jwt_identity())
-    task = User_DI.task_service.create_task(data, project_id, current_user_id)
-    return task_schema.jsonify(task), 201
-
+    return Task_DI.create_task_controller.create_task(data, project_id, current_user_id)
+     
 
 # PUT /projects/<project_id>/tasks/<task_id>
 @task_bp.route("/<int:task_id>", methods=["PUT"])
@@ -46,8 +39,7 @@ def create_task(project_id: int):
 def update_task(project_id: int, task_id: int):    
     current_user_id = int(get_jwt_identity())
     json_data = request.get_json()
-    task = User_DI.task_service.update_task(json_data, project_id, task_id, current_user_id)
-    return task_schema.jsonify(task), 200
+    return Task_DI.update_task_controller.update_task(json_data, project_id, task_id, current_user_id)
     
     
 # DELETE /projects/<project_id>/tasks/<task_id>
@@ -56,6 +48,6 @@ def update_task(project_id: int, task_id: int):
 @role_required(["user", "admin"])
 def remove_task(project_id: int, task_id: int):
     current_user_id = int(get_jwt_identity())
-    User_DI.task_service.remove_task(project_id, task_id, current_user_id)
+    Task_DI.remove_task_controller.remove_task(project_id, task_id, current_user_id)
     return jsonify(message = ""), 204 
       

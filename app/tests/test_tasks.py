@@ -346,7 +346,7 @@ def test_user_update_task_wrong_project(client, user_auth_headers):
     }   
     
     response = client.put(
-        "/api/v1/projects/1/tasks/7",
+        "/api/v1/projects/1/tasks/6",
         json = payload,
         headers = user_auth_headers
     ) 
@@ -395,7 +395,7 @@ def test_user_remove_task_wrong_task(client, user_auth_headers):
     
 def test_user_remove_task_wrong_project(client, user_auth_headers):
     response = client.delete(
-        "/api/v1/projects/1/tasks/7",
+        "/api/v1/projects/1/tasks/6",
         headers = user_auth_headers
     )
     

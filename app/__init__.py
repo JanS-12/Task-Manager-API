@@ -3,6 +3,7 @@ from .routes import user_bp, project_bp, task_bp, auth_bp
 from .containers.project_container import Project_DI
 from .models.token_blocklist import TokenBlocklist
 from .containers.user_container import User_DI
+from .containers.task_container import Task_DI
 from .extensions import db, ma, jwt, limiter
 from .utils.seed import seed_data
 from flask import Flask
@@ -34,11 +35,14 @@ def create_app(config_name = "default"):
     limiter.init_app(app)
     logger.info("Initializing Extensions")
     
-    # Register User_DI Wiring
+    # Register User DI Wiring
     User_DI.register_user_dependencies()
     
-    # Project Dependency Injection and Wiring
+    # Project DI Wiring
     Project_DI.register_project_dependencies()
+    
+    # Task DI Wriring
+    Task_DI.register_task_dependencies()
     
     # Create tables
     with app.app_context():

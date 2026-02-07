@@ -1,8 +1,7 @@
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.schemas.user_schema import UserSchema
-from flask import Blueprint, request, jsonify
-from app.utils.security import role_required
 from app.containers.user_container import User_DI
+from app.utils.security import role_required
+from flask import Blueprint, request
 
 user_bp = Blueprint("users", __name__, url_prefix = "/api/v1/users")
 

@@ -1,26 +1,22 @@
-from app.services.projects.retrieve_project import GetProjectService
-from app.controllers.projects.retrieve_project import GetProjectController
 from app.services.projects.retrieve_projects import GetProjectsService
-from app.controllers.projects.retrieve_projects import GetProjectsController
 from app.services.projects.create_project import CreateProjectService
-from app.controllers.projects.create_project import CreateProjectController
-
-from app.controllers.projects.update_project import UpdateProjectController
 from app.services.projects.update_project import UpdateProjectService
-
 from app.services.projects.remove_project import RemoveProjectService
-from app.controllers.projects.remove_project import RemoveProjectController
+from app.services.projects.retrieve_project import GetProjectService
 
-# Repos
+from app.controllers.projects.retrieve_projects import GetProjectsController
+from app.controllers.projects.create_project import CreateProjectController
+from app.controllers.projects.update_project import UpdateProjectController
+from app.controllers.projects.remove_project import RemoveProjectController
+from app.controllers.projects.retrieve_project import GetProjectController
+
 from app.repositories.project_repo import ProjectRepository
-from app.repositories.token_repo import TokenRepository
 from app.repositories.task_repo import TaskRepository
 from app.repositories.user_repo import UserRepository
 
 class Project_DI:
-    user_repository = None
-    token_repository = None
     project_repository = None
+    user_repository = None
     task_repository = None
     
     retrieve_project_service = None
@@ -38,9 +34,7 @@ class Project_DI:
     remove_project_service = None
     remove_project_controller = None
     
-
     def register_project_dependencies():
-        Project_DI.token_repository = TokenRepository()
         Project_DI.user_repository = UserRepository()
         Project_DI.project_repository = ProjectRepository()
         Project_DI.task_repository = TaskRepository()
