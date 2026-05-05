@@ -32,8 +32,8 @@ def login():
 @auth_bp.route("/refresh", methods=["POST"])
 @jwt_required(refresh = True)
 def refresh_access_token():
-    new_access_token = User_DI.auth_service.refresh_access_token(int(get_jwt_identity()))
-    return jsonify(access_token = new_access_token), 200
+    return User_DI.refresh_access_token_controller.refresh_access_token(int(get_jwt_identity()))
+    
 
 
 @auth_bp.route("/logout", methods=["POST"])

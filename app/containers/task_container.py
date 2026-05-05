@@ -1,10 +1,10 @@
-from app.services.tasks.create import CreateTaskService
 from app.services.tasks.retrieve import GetTaskService, GetTasksService
+from app.services.tasks.create import CreateTaskService
 from app.services.tasks.modify import UpdateTaskService
 from app.services.tasks.remove import RemoveTaskService
 
-from app.controllers.tasks.create import CreateTaskController
 from app.controllers.tasks.retrieve import GetTaskController, GetTasksController
+from app.controllers.tasks.create import CreateTaskController
 from app.controllers.tasks.modify import UpdateTaskController
 from app.controllers.tasks.remove import RemoveTaskController
 

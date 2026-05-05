@@ -6,6 +6,6 @@ class TaskSchema(ma.Schema):
     id          = fields.Int(dump_only = True)
     title       = fields.Str(required = True, validate = validate.Length(min = 5, max = 80))    # Validate Length
     description = fields.Str()
-    project_id  = fields.Int(required = True)
+    project_id  = fields.Int()
     created_at  = fields.DateTime(dump_only = True)
     updated_at  = fields.DateTime(dump_only = True)

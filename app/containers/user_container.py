@@ -1,4 +1,5 @@
 from app.services.users.profile_service import GetUserProfileService, GetAllUsersProfileService
+from app.services.users.refresh_access_token import RefreshAccessTokenService
 from app.services.users.registration_service import RegistrationService
 from app.services.users.update_service import UpdateUserService
 from app.services.users.remove_service import RemoveUserService
@@ -6,6 +7,7 @@ from app.services.users.logout_service import LogoutService
 from app.services.users.login_service import LoginService
 
 from app.controllers.users.profile_controller import GetUserProfileController, GetAllUserProfileController
+from app.controllers.users.refresh_access_token import RefreshAccessTokenController
 from app.controllers.users.registration_controller import RegistrationController
 from app.controllers.users.update_controller import UpdateUserController
 from app.controllers.users.remove_controller import RemoveUserController
@@ -17,16 +19,11 @@ from app.repositories.token_repo import TokenRepository
 from app.repositories.task_repo import TaskRepository
 from app.repositories.user_repo import UserRepository
 
-from app.services.auth_service import AuthService
-from app.services.user_service import UserService
 class User_DI:
     user_repository = None
     token_repository = None
     project_repository = None
     task_repository = None
-    
-    auth_service = None
-    user_service = None
     
     user_profile_service = None
     user_profile_controller = None
@@ -49,14 +46,14 @@ class User_DI:
     remove_service = None
     remove_controller = None
     
+    refresh_access_token_service = None
+    refresh_access_token_controller = None
+    
     def register_user_dependencies():
         User_DI.token_repository = TokenRepository()
         User_DI.user_repository = UserRepository()
         User_DI.project_repository = ProjectRepository()
         User_DI.task_repository = TaskRepository()
-        
-        User_DI.user_service = UserService(User_DI.user_repository)
-        User_DI.auth_service = AuthService(User_DI.token_repository, User_DI.user_service)
         
         User_DI.user_profile_service = GetUserProfileService(User_DI.user_repository)
         User_DI.user_profile_controller = GetUserProfileController(User_DI.user_profile_service)
@@ -78,4 +75,8 @@ class User_DI:
         
         User_DI.remove_service = RemoveUserService(User_DI.user_repository, User_DI.token_repository)
         User_DI.remove_controller = RemoveUserController(User_DI.remove_service)
+        
+        User_DI.refresh_access_token_service = RefreshAccessTokenService(User_DI.token_repository, User_DI.user_repository)
+        User_DI.refresh_access_token_controller = RefreshAccessTokenController(User_DI.refresh_access_token_service)
+        
     

@@ -1,7 +1,7 @@
+from app.utils.custom_exceptions import UserNotFound, ProjectNotFound
 from app.repositories.project_repo import ProjectRepository
 from app.repositories.user_repo import UserRepository
 from app.policies.project_policy import ProjectPolicy
-from app.utils.custom_exceptions import UserNotFound, ProjectNotFound
 
 class GetProjectService:
     def __init__(self, project_repo: ProjectRepository, user_repo: UserRepository):

@@ -6,7 +6,6 @@ from flask import jsonify
 # Handles all database CRUD functionalities
 class UserRepository:
     def create(self, data):
-        print("Repo Create")
         user = User(
             username = data["username"],
             password = hash_password(data["password"]),

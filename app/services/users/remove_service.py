@@ -1,7 +1,7 @@
-from app.repositories.user_repo import UserRepository
 from app.repositories.token_repo import TokenRepository
-from app.policies.user_policy import UserPolicy
+from app.repositories.user_repo import UserRepository
 from app.utils.custom_exceptions import UserNotFound
+from app.policies.user_policy import UserPolicy
 
 class RemoveUserService:
     def __init__(self, user_repo: UserRepository, token_repo: TokenRepository):

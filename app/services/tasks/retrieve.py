@@ -1,8 +1,8 @@
-from app.repositories.task_repo import TaskRepository
-from app.repositories.project_repo import ProjectRepository   
+from app.utils.custom_exceptions import UserNotFound, TaskNotFound, ProjectNotFound
+from app.repositories.project_repo import ProjectRepository 
+from app.repositories.task_repo import TaskRepository  
 from app.repositories.user_repo import UserRepository
 from app.policies.task_policy import TaskPolicy
-from app.utils.custom_exceptions import UserNotFound, TaskNotFound, ProjectNotFound
 
 class GetTaskService:
     def __init__(self, project_repo: ProjectRepository, user_repo: UserRepository, task_repo: TaskRepository):

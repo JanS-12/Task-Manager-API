@@ -7,6 +7,6 @@ class UserSchema(ma.Schema):
     username        = fields.Str(required = True, validate = validate.Length(min = 3, max = 80))        # Validate Length
     password        = fields.Str(required = True, validate = validate.Length(min = 8, max = 128), load_only = True)  # Validate Length, load only, do not return. 
     email           = fields.Email(required = True)
-    role            = fields.Str(required = True)
+    role            = fields.Str()
     created_at      = fields.DateTime(dump_only = True)
     updated_at      = fields.DateTime(dump_only = True)

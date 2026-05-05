@@ -1,4 +1,3 @@
-from app.models.user import User
 
 """ Test Suite for User Route """
 

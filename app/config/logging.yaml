@@ -22,7 +22,6 @@ formatters:
        "message": "%(message)s",
        "path": "%(path)s",
        "method": "%(method)s",
-       "client_ip": "%(client_ip)s",
        "status_code": "%(status_code)d"
       }
   
