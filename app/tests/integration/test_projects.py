@@ -19,7 +19,7 @@ def test_admin_get_a_project(client, admin_auth_headers):
     assert response.status_code == 200 
 
 
-def test_admin_create_project(client, admin_auth_headers):
+def test_admin_create_project(client, admin_auth_headers):  
     payload = {     
         "title": "Project Test Suite",
         "description": "Testing the endpoint from test suite.",

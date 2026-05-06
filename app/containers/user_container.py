@@ -19,64 +19,40 @@ from app.repositories.token_repo import TokenRepository
 from app.repositories.task_repo import TaskRepository
 from app.repositories.user_repo import UserRepository
 
-class User_DI:
-    user_repository = None
-    token_repository = None
-    project_repository = None
-    task_repository = None
-    
-    user_profile_service = None
-    user_profile_controller = None
-    
-    users_profile_service = None
-    users_profile_controller = None
-    
-    registration_service = None
-    registration_controller = None
-    
-    login_service = None
-    login_controller = None
-    
-    logout_service = None
-    logout_controller = None
-    
-    update_service = None
-    update_controller = None
-    
-    remove_service = None
-    remove_controller = None
-    
-    refresh_access_token_service = None
-    refresh_access_token_controller = None
-    
-    def register_user_dependencies():
-        User_DI.token_repository = TokenRepository()
-        User_DI.user_repository = UserRepository()
-        User_DI.project_repository = ProjectRepository()
-        User_DI.task_repository = TaskRepository()
-        
-        User_DI.user_profile_service = GetUserProfileService(User_DI.user_repository)
-        User_DI.user_profile_controller = GetUserProfileController(User_DI.user_profile_service)
-        
-        User_DI.users_profile_service = GetAllUsersProfileService(User_DI.user_repository)
-        User_DI.users_profile_controller = GetAllUserProfileController(User_DI.users_profile_service)
-        
-        User_DI.registration_service = RegistrationService(User_DI.user_repository)
-        User_DI.registration_controller = RegistrationController(User_DI.registration_service)
-        
-        User_DI.login_service = LoginService(User_DI.token_repository, User_DI.user_repository)
-        User_DI.login_controller = LoginController(User_DI.login_service)
-        
-        User_DI.logout_service = LogoutService(User_DI.user_repository, User_DI.token_repository)
-        User_DI.logout_controller = LogoutController(User_DI.logout_service)
-        
-        User_DI.update_service = UpdateUserService(User_DI.user_repository)
-        User_DI.update_controller = UpdateUserController(User_DI.update_service)
-        
-        User_DI.remove_service = RemoveUserService(User_DI.user_repository, User_DI.token_repository)
-        User_DI.remove_controller = RemoveUserController(User_DI.remove_service)
-        
-        User_DI.refresh_access_token_service = RefreshAccessTokenService(User_DI.token_repository, User_DI.user_repository)
-        User_DI.refresh_access_token_controller = RefreshAccessTokenController(User_DI.refresh_access_token_service)
-        
-    
+class UserContainer:
+    def __init__(
+        self,
+        user_repository=None,
+        token_repository=None,
+        project_repository=None,
+        task_repository=None,
+    ):
+        # Dependencies (can be overridden in tests)
+        self.user_repository = user_repository or UserRepository()
+        self.token_repository = token_repository or TokenRepository()
+        self.project_repository = project_repository or ProjectRepository()
+        self.task_repository = task_repository or TaskRepository()
+
+        # Services
+        self.user_profile_service = GetUserProfileService(self.user_repository)
+        self.users_profile_service = GetAllUsersProfileService(self.user_repository)
+        self.registration_service = RegistrationService(self.user_repository)
+        self.login_service = LoginService(self.token_repository, self.user_repository)
+        self.logout_service = LogoutService(self.user_repository, self.token_repository)
+        self.update_service = UpdateUserService(self.user_repository)
+        self.remove_service = RemoveUserService(self.user_repository, self.token_repository)
+        self.refresh_access_token_service = RefreshAccessTokenService(
+            self.token_repository, self.user_repository
+        )
+
+        # Controllers
+        self.user_profile_controller = GetUserProfileController(self.user_profile_service)
+        self.users_profile_controller = GetAllUserProfileController(self.users_profile_service)
+        self.registration_controller = RegistrationController(self.registration_service)
+        self.login_controller = LoginController(self.login_service)
+        self.logout_controller = LogoutController(self.logout_service)
+        self.update_controller = UpdateUserController(self.update_service)
+        self.remove_controller = RemoveUserController(self.remove_service)
+        self.refresh_access_token_controller = RefreshAccessTokenController(
+            self.refresh_access_token_service
+        )

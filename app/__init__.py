@@ -1,9 +1,7 @@
 from .utils.error_handlers import register_error_handlers
 from .routes import user_bp, project_bp, task_bp, auth_bp
-from .containers.project_container import Project_DI
 from .models.token_blocklist import TokenBlocklist
-from .containers.user_container import User_DI
-from .containers.task_container import Task_DI
+from .containers.app_container import AppContainer
 from .extensions import db, ma, jwt, limiter
 from .utils.seed import seed_data
 from flask import Flask
@@ -12,6 +10,9 @@ import yaml
 
 def create_app(config_name = "default"):
     app = Flask(__name__)
+    
+    # Register User DI Wiring
+    app.container = AppContainer()
     
     # Double Check Config
     if config_name == "testing":
@@ -35,14 +36,7 @@ def create_app(config_name = "default"):
     limiter.init_app(app)
     logger.info("Initializing Extensions")
     
-    # Register User DI Wiring
-    User_DI.register_user_dependencies()
     
-    # Project DI Wiring
-    Project_DI.register_project_dependencies()
-    
-    # Task DI Wriring
-    Task_DI.register_task_dependencies()
     
     # Create tables
     with app.app_context():

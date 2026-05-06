@@ -1,7 +1,6 @@
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from app.containers.user_container import User_DI
 from app.utils.security import  role_required
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from app.extensions import limiter
 
 auth_bp = Blueprint("auth", __name__, url_prefix = "/api/v1/auth")
@@ -17,22 +16,25 @@ def health_check():
 @auth_bp.route("/register", methods=["POST"])
 @limiter.limit("20 per minute")
 def register():
-    return User_DI.registration_controller.register(request.get_json())
+    user_container = current_app.container.user
+    return user_container.registration_controller.register(request.get_json())
 
 
 # Login --> POST "/api/v1/auth/login"
 @auth_bp.route("/login", methods=["POST"])
 @limiter.limit("100 per minute") 
 def login():   
-    tokens = User_DI.login_controller.login(request.get_json())
+    user_container = current_app.container.user
+    tokens = user_container.login_controller.login(request.get_json())
     return jsonify(access_token = tokens["access_token"], refresh_token = tokens["refresh_token"]), 200
 
 
-# This function is to be called inUser_DIrectly by the front-end client, not the user User_DIrectly
+# This function is to be called inUser_DIrectly by the front-end client, not the user user_containerrectly
 @auth_bp.route("/refresh", methods=["POST"])
 @jwt_required(refresh = True)
 def refresh_access_token():
-    return User_DI.refresh_access_token_controller.refresh_access_token(int(get_jwt_identity()))
+    user_container = current_app.container.user
+    return user_container.refresh_access_token_controller.refresh_access_token(int(get_jwt_identity()))
     
 
 
@@ -40,5 +42,6 @@ def refresh_access_token():
 @jwt_required()
 @role_required(["user", "admin"])
 def logout():
-    User_DI.logout_controller.logout(int(get_jwt_identity()))
+    user_container = current_app.container.user
+    user_container.logout_controller.logout(int(get_jwt_identity()))
     return jsonify(message = "User succesfully logged out!"), 200

@@ -5,7 +5,7 @@ from app.repositories.user_repo import UserRepository
 from app.policies.task_policy import TaskPolicy
 
 class RemoveTaskService:
-    def __init__(self, project_repo: ProjectRepository, task_repo: TaskRepository, user_repo: UserRepository):
+    def __init__(self, project_repo: ProjectRepository, user_repo: UserRepository, task_repo: TaskRepository):
         self.project_repo = project_repo
         self.task_repo = task_repo
         self.user_repo = user_repo

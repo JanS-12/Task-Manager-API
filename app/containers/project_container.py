@@ -14,42 +14,29 @@ from app.repositories.project_repo import ProjectRepository
 from app.repositories.task_repo import TaskRepository
 from app.repositories.user_repo import UserRepository
 
-class Project_DI:
-    project_repository = None
-    user_repository = None
-    task_repository = None
-    
-    retrieve_project_service = None
-    retrieve_project_controller = None
-    
-    retrieve_projects_service = None
-    retrieve_projects_controller = None
-    
-    create_project_service = None
-    create_project_controller = None
-    
-    update_project_service = None
-    update_project_controller = None
-    
-    remove_project_service = None
-    remove_project_controller = None
-    
-    def register_project_dependencies():
-        Project_DI.user_repository = UserRepository()
-        Project_DI.project_repository = ProjectRepository()
-        Project_DI.task_repository = TaskRepository()
+class ProjectContainer:
+    def __init__(
+        self, 
+        user_repository=None,
+        project_repository=None,
+        task_repository=None
+    ):
         
-        Project_DI.retrieve_project_service = GetProjectService(Project_DI.project_repository, Project_DI.user_repository)
-        Project_DI.retrieve_project_controller = GetProjectController(Project_DI.retrieve_project_service)
+        # Dependencies (can be overridden in tests)
+        self.project_repository = project_repository or ProjectRepository()
+        self.user_repository = user_repository or UserRepository()
+        self.task_repository = task_repository or TaskRepository()
         
-        Project_DI.retrieve_projects_service = GetProjectsService(Project_DI.project_repository, Project_DI.user_repository)
-        Project_DI.retrieve_projects_controller = GetProjectsController(Project_DI.retrieve_projects_service)
-    
-        Project_DI.create_project_service = CreateProjectService(Project_DI.project_repository, Project_DI.user_repository)
-        Project_DI.create_project_controller = CreateProjectController(Project_DI.create_project_service)
+        # Services 
+        self.retrieve_project_service = GetProjectService(self.project_repository, self.user_repository) 
+        self.retrieve_projects_service = GetProjectsService(self.project_repository, self.user_repository)
+        self.create_project_service = CreateProjectService(self.project_repository, self.user_repository)
+        self.update_project_service = UpdateProjectService(self.project_repository, self.user_repository)
+        self.remove_project_service = RemoveProjectService(self.project_repository, self.user_repository)
         
-        Project_DI.update_project_service = UpdateProjectService(Project_DI.project_repository, Project_DI.user_repository)
-        Project_DI.update_project_controller = UpdateProjectController(Project_DI.update_project_service)
-        
-        Project_DI.remove_project_service = RemoveProjectService(Project_DI.project_repository, Project_DI.user_repository)
-        Project_DI.remove_project_controller = RemoveProjectController(Project_DI.remove_project_service)
+        # Controllers
+        self.retrieve_projects_controller = GetProjectsController(self.retrieve_projects_service) 
+        self.remove_project_controller = RemoveProjectController(self.remove_project_service)
+        self.retrieve_project_controller = GetProjectController(self.retrieve_project_service)
+        self.update_project_controller = UpdateProjectController(self.update_project_service)
+        self.create_project_controller = CreateProjectController(self.create_project_service)

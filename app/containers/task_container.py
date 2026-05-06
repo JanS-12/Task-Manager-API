@@ -12,42 +12,28 @@ from app.repositories.project_repo import ProjectRepository
 from app.repositories.task_repo import TaskRepository
 from app.repositories.user_repo import UserRepository
 
-class Task_DI:
-    user_repository = None
-    project_repository = None
-    task_repository = None
-    
-    retrieve_task_service = None
-    retrieve_task_controller = None
-    
-    retrieve_tasks_service = None
-    retrieve_tasks_controller = None
-    
-    create_task_service = None
-    create_task_controller = None
-    
-    update_task_service = None
-    update_task_controller = None
-    
-    remove_task_service = None
-    remove_task_controller = None
-    
-    def register_task_dependencies():
-        Task_DI.user_repository = UserRepository()
-        Task_DI.project_repository = ProjectRepository()
-        Task_DI.task_repository = TaskRepository()
+class TaskContainer:
+    def __init__(
+        self, 
+        user_repository=None,
+        project_repository=None,
+        task_repository=None
+    ):
+        # Dependencies 
+        self.user_repository = user_repository or UserRepository()
+        self.project_repository = project_repository or ProjectRepository()
+        self.task_repository = task_repository or TaskRepository()
         
-        Task_DI.create_task_service = CreateTaskService(Task_DI.project_repository, Task_DI.user_repository, Task_DI.task_repository)
-        Task_DI.create_task_controller = CreateTaskController(Task_DI.create_task_service)
+        # Services
+        self.retrieve_task_service = GetTaskService(self.project_repository, self.user_repository, self.task_repository)        
+        self.retrieve_tasks_service = GetTasksService(self.project_repository, self.user_repository, self.task_repository)    
+        self.create_task_service = CreateTaskService(self.project_repository, self.user_repository, self.task_repository)
+        self.update_task_service = UpdateTaskService(self.project_repository, self.user_repository, self.task_repository)
+        self.remove_task_service = RemoveTaskService(self.project_repository, self.user_repository, self.task_repository)
         
-        Task_DI.retrieve_task_service = GetTaskService(Task_DI.project_repository, Task_DI.user_repository, Task_DI.task_repository)
-        Task_DI.retrieve_task_controller = GetTaskController(Task_DI.retrieve_task_service)
-        
-        Task_DI.retrieve_tasks_service = GetTasksService(Task_DI.project_repository, Task_DI.user_repository, Task_DI.task_repository)
-        Task_DI.retrieve_tasks_controller = GetTasksController(Task_DI.retrieve_tasks_service)
-        
-        Task_DI.update_task_service = UpdateTaskService(Task_DI.project_repository, Task_DI.task_repository, Task_DI.user_repository)
-        Task_DI.update_task_controller = UpdateTaskController(Task_DI.update_task_service)
-        
-        Task_DI.remove_task_service = RemoveTaskService(Task_DI.project_repository, Task_DI.task_repository, Task_DI.user_repository)
-        Task_DI.remove_task_controller = RemoveTaskController(Task_DI.remove_task_service)
+        # Controllers
+        self.retrieve_task_controller = GetTaskController(self.retrieve_task_service)
+        self.retrieve_tasks_controller = GetTasksController(self.retrieve_tasks_service)
+        self.create_task_controller = CreateTaskController(self.create_task_service)
+        self.update_task_controller = UpdateTaskController(self.update_task_service)
+        self.remove_task_controller = RemoveTaskController(self.remove_task_service)
