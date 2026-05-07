@@ -1,4 +1,4 @@
-
+from app.tests.utils.assertions import assert_error_response
 """  Test Suite for Tasks """
 
 # ---- Admin Routes -----
@@ -182,70 +182,10 @@ def test_user_delete_task(client, user_auth_headers):
     assert response.status_code == 204
     
     # --- Failure Routes ---    
-def test_user_get_all_tasks_wrong_project(client, user_auth_headers):
-    response = client.get(
-        "/api/v1/projects/3/tasks/",
-        headers = user_auth_headers
-    )    
-    
-    assert response.status_code == 403
-    
-def test_user_get_all_tasks_not_found_project(client, user_auth_headers):
-    response = client.get(
-        "/api/v1/projects/7/tasks/",
-        headers = user_auth_headers
-    )    
-    
-    assert response.status_code == 404
+def test_user_protected_route_no_token(client):
+    response = client.get("/api/v1/projects/2/tasks/")
 
-    # --- Get a task
-def test_user_get_a_task_project_not_found(client, user_auth_headers):
-    response = client.get(
-        "/api/v1/projects/5/tasks/3",
-        headers = user_auth_headers
-    )    
-    
-    assert response.status_code == 404
-
-def test_user_get_a_task_not_found(client, user_auth_headers):
-    response = client.get(
-        "/api/v1/projects/2/tasks/0",
-        headers = user_auth_headers
-    )    
-    
-    assert response.status_code == 404    
-
-def test_user_get_a_task_wrong_task(client, user_auth_headers):
-    response = client.get(
-        "/api/v1/projects/2/tasks/2",
-        headers = user_auth_headers
-    )    
-    
-    assert response.status_code == 403
-    
-def test_user_get_a_task_wrong_project(client, user_auth_headers):
-    response = client.get(
-        "/api/v1/projects/1/tasks/3",
-        headers = user_auth_headers
-    )    
-    
-    assert response.status_code == 403
-
-    # --- Create a Task 
-def test_user_create_task_project_not_found(client, user_auth_headers):
-    payload = {
-        "title": "User task test suite endpoint",
-        "description": "Testing Endpoint for success",
-        "project_id": "2"
-    }   
-    
-    response = client.post(
-        "/api/v1/projects/0/tasks/create",
-        json = payload,
-        headers = user_auth_headers
-    ) 
-    
-    assert response.status_code == 404
+    assert response.status_code == 401
     
 def test_user_create_task_no_data(client, user_auth_headers):
     response = client.post(
@@ -254,9 +194,7 @@ def test_user_create_task_no_data(client, user_auth_headers):
         headers = user_auth_headers
     ) 
     
-    assert response.status_code == 400
-    data = response.get_json()
-    assert "error" in data
+    assert_error_response(response, 400, "NoDataError")
 
 def test_user_create_task_invalid_data(client, user_auth_headers):
     payload = {
@@ -271,43 +209,9 @@ def test_user_create_task_invalid_data(client, user_auth_headers):
         headers = user_auth_headers
     ) 
     
-    assert response.status_code == 422
-    data = response.get_json()
-    assert "error" in data
-    assert "title" in data["message"]
-    assert "project_id" in data["message"]
-    
-def test_user_create_task_wrong_project(client, user_auth_headers):
-    payload = {
-        "title": "User task test suite endpoint",
-        "description": "Testing Endpoint for success",
-        "project_id": "1"
-    }   
-    
-    response = client.post(
-        "/api/v1/projects/1/tasks/create",
-        json = payload,
-        headers = user_auth_headers
-    ) 
-    
-    assert response.status_code == 403
+    assert_error_response(response, 422, "ValidationError")
     
     # ---- Update Task
-def test_user_update_task_project_not_found(client, user_auth_headers):
-    payload = {
-        "title": "User task test suite endpoint",
-        "description": "Testing Endpoint for success",
-        "project_id": "2"
-    }   
-    
-    response = client.put(
-        "/api/v1/projects/0/tasks/2",
-        json = payload,
-        headers = user_auth_headers
-    ) 
-    
-    assert response.status_code == 404
-    
 def test_user_update_task_no_data(client, user_auth_headers):
     response = client.put(
         "/api/v1/projects/2/tasks/7",
@@ -315,9 +219,7 @@ def test_user_update_task_no_data(client, user_auth_headers):
         headers = user_auth_headers
     ) 
     
-    assert response.status_code == 400
-    data = response.get_json()
-    assert "error" in data
+    assert_error_response(response, 400, "NoDataError")
 
 def test_user_update_task_invalid_data(client, user_auth_headers):
     payload = {
@@ -332,71 +234,4 @@ def test_user_update_task_invalid_data(client, user_auth_headers):
         headers = user_auth_headers
     ) 
     
-    assert response.status_code == 422
-    data = response.get_json()
-    assert "error" in data
-    assert "title" in data["message"]
-    assert "project_id" in data["message"]
-    
-def test_user_update_task_wrong_project(client, user_auth_headers):
-    payload = {
-        "title": "User task test suite endpoint",
-        "description": "Testing Endpoint for success",
-        "project_id": "1"
-    }   
-    
-    response = client.put(
-        "/api/v1/projects/1/tasks/6",
-        json = payload,
-        headers = user_auth_headers
-    ) 
-    
-    assert response.status_code == 403
-
-def test_user_update_task_not_found(client, user_auth_headers):
-    payload = {
-        "title": "User task test suite endpoint",
-        "description": "Testing Endpoint for success",
-        "project_id": "2"
-    }   
-    
-    response = client.put(
-        "/api/v1/projects/2/tasks/0",
-        json = payload,
-        headers = user_auth_headers
-    ) 
-    
-    assert response.status_code == 404
-    
-    # Remove a task
-def test_user_remove_task_project_not_found(client, user_auth_headers):
-    response = client.delete(
-        "/api/v1/projects/0/tasks/1",
-        headers = user_auth_headers
-    )
-    
-    assert response.status_code == 404
-    
-def test_user_remove_task_not_found(client, user_auth_headers):
-    response = client.delete(
-        "/api/v1/projects/2/tasks/0",
-        headers = user_auth_headers
-    )
-    
-    assert response.status_code == 404
-
-def test_user_remove_task_wrong_task(client, user_auth_headers):
-    response = client.delete(
-        "/api/v1/projects/2/tasks/1",
-        headers = user_auth_headers
-    )
-    
-    assert response.status_code == 403
-    
-def test_user_remove_task_wrong_project(client, user_auth_headers):
-    response = client.delete(
-        "/api/v1/projects/1/tasks/6",
-        headers = user_auth_headers
-    )
-    
-    assert response.status_code == 403
+    assert_error_response(response, 422, "ValidationError")

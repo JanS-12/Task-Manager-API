@@ -27,13 +27,13 @@ class TaskContainer:
         # Services
         self.retrieve_task_service = GetTaskService(self.project_repository, self.user_repository, self.task_repository)        
         self.retrieve_tasks_service = GetTasksService(self.project_repository, self.user_repository, self.task_repository)    
-        self.create_task_service = CreateTaskService(self.project_repository, self.user_repository, self.task_repository)
-        self.update_task_service = UpdateTaskService(self.project_repository, self.user_repository, self.task_repository)
-        self.remove_task_service = RemoveTaskService(self.project_repository, self.user_repository, self.task_repository)
+        self.create_service = CreateTaskService(self.project_repository, self.user_repository, self.task_repository)
+        self.update_service = UpdateTaskService(self.project_repository, self.user_repository, self.task_repository)
+        self.remove_service = RemoveTaskService(self.project_repository, self.user_repository, self.task_repository)
         
         # Controllers
         self.retrieve_task_controller = GetTaskController(self.retrieve_task_service)
         self.retrieve_tasks_controller = GetTasksController(self.retrieve_tasks_service)
-        self.create_task_controller = CreateTaskController(self.create_task_service)
-        self.update_task_controller = UpdateTaskController(self.update_task_service)
-        self.remove_task_controller = RemoveTaskController(self.remove_task_service)
+        self.create_controller = CreateTaskController(self.create_service)
+        self.update_controller = UpdateTaskController(self.update_service)
+        self.remove_controller = RemoveTaskController(self.remove_service)

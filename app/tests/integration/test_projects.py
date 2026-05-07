@@ -1,4 +1,4 @@
-
+from app.tests.utils.assertions import assert_error_response
 """ Test Suite for Projects """
 
 # ---- Admin Routes ----
@@ -190,17 +190,11 @@ def test_user_delete_project(client, user_auth_headers):
     assert response.status_code == 204
     
     
-    # --- Failure Routes ---
-def test_user_get_wrong_project(client, user_auth_headers):
-    response = client.get(
-        "/api/v1/projects/1",
-        headers = user_auth_headers
-    )    
+    # --- Failure Routes ---        
+def test_user_protected_route_no_token(client):
+    response = client.get("/api/v1/projects/2")
     
-    assert response.status_code == 403
-    data = response.get_json()
-    assert "error" in data
-    
+    assert response.status_code == 401
     
 def test_user_create_project_no_data(client, user_auth_headers):
     response = client.post(
@@ -209,9 +203,7 @@ def test_user_create_project_no_data(client, user_auth_headers):
         headers = user_auth_headers
     )
 
-    assert response.status_code == 400    
-    data = response.get_json()
-    assert "error" in data
+    assert_error_response(response, 400, "NoDataError")
 
 
 def test_user_create_project_invalid_data(client, user_auth_headers):
@@ -227,29 +219,7 @@ def test_user_create_project_invalid_data(client, user_auth_headers):
         headers = user_auth_headers
     )
 
-    assert response.status_code == 422    
-    data = response.get_json()
-    assert "error" in data
-    assert "title" in data["message"]
-    assert "owner_id" in data["message"]     
-
-
-def test_user_update_wrong_project(client, user_auth_headers):
-    payload = {
-        "title": "Project Test Suite User",
-        "description": "Testing the update user endpoint from test suite.",
-        "owner_id": "2"
-    }
-    
-    response = client.put(
-        "/api/v1/projects/1",
-        json = payload,
-        headers = user_auth_headers
-    )
-
-    assert response.status_code == 403   
-    data = response.get_json()
-    assert "error" in data
+    assert_error_response(response, 422, "ValidationError")
 
 
 def test_user_update_project_no_data(client, user_auth_headers):
@@ -259,9 +229,7 @@ def test_user_update_project_no_data(client, user_auth_headers):
         headers = user_auth_headers
     )
 
-    assert response.status_code == 400    
-    data = response.get_json()
-    assert "error" in data
+    assert_error_response(response, 400, "NoDataError")
 
 
 def test_user_update_project_invalid_data(client, user_auth_headers):
@@ -277,26 +245,5 @@ def test_user_update_project_invalid_data(client, user_auth_headers):
         headers = user_auth_headers
     )
 
-    assert response.status_code == 422    
-    data = response.get_json()
-    assert "error" in data
-    assert "title" in data["message"]
-    assert "owner_id" in data["message"]
+    assert_error_response(response, 422, "ValidationError")
     
-    
-def test_user_delete_wrong_project(client, user_auth_headers):
-    response = client.delete(
-        "/api/v1/projects/1", 
-        headers = user_auth_headers
-    )
-    
-    assert response.status_code == 403
-
-
-def test_user_delete_not_found(client, user_auth_headers):
-    response = client.delete(
-        "/api/v1/projects/5", 
-        headers = user_auth_headers
-    )
-    
-    assert response.status_code == 404

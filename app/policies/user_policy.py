@@ -2,7 +2,6 @@ from app.utils.custom_exceptions import AccessDenied
 
 class UserPolicy:    
     def can_create_profile(self, requester):
-        print("Create Policy")
         if requester.role != "admin":
             raise AccessDenied()
         

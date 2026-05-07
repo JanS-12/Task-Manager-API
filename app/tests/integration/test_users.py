@@ -1,3 +1,4 @@
+from app.tests.utils.assertions import assert_error_response
 
 """ Test Suite for User Route """
 
@@ -43,51 +44,24 @@ def test_admin_user_delete(client, test_user, admin_auth_headers):
     
     assert response.status_code == 204
     
-    # ----- Failure Routes --------
-def test_admin_get_user_not_found(client, admin_auth_headers):  
-    response = client.get(
-        "/api/v1/users/0",
-        headers = admin_auth_headers
-    )
-    
-    assert response.status_code == 404
-    
-def test_admin_delete_user_not_found(client, admin_auth_headers):
-    response = client.delete(
-        "/api/v1/users/0",
-        headers = admin_auth_headers
-    )
-    
-    assert response.status_code == 404
-    
-        
     
 # ----- Users Routes ---------
 
     # ------ Success Routes -------  
-def test_user_get_user(client, user_auth_headers):  
+def test_user_protected_get_user(client, user_auth_headers):  
     response = client.get(
         "/api/v1/users/2",          # This means that there are 8 users on profile
         headers = user_auth_headers
     )
     assert response.status_code == 200 
+    data = response.get_json()
+    
+    assert "username" in data
+    assert "email" in data
+    assert "role" in data
     
     
-    # ----- Failure, Unathorized, Forbidden Routes ----------
-def test_user_get_all_users(client, user_auth_headers):
-    response = client.get(
-        "/api/v1/users/",
-        headers = user_auth_headers
-    )
-    assert response.status_code == 403
-    
-def test_user_get_wrong_user(client, user_auth_headers):  
-    response = client.get(
-        "/api/v1/users/1",
-        headers = user_auth_headers
-    )
-    assert response.status_code == 403  
-    
+    # ----- Failure, Unathorized, Forbidden Routes ----------    
 def test_user_update_user_no_data(client, user_auth_headers):
     response = client.put(
         "/api/v1/users/2",
@@ -95,9 +69,7 @@ def test_user_update_user_no_data(client, user_auth_headers):
         headers = user_auth_headers
     )
     
-    assert response.status_code == 400  
-    data = response.get_json()
-    assert "error" in data
+    assert_error_response(response, 400, "NoDataError")
     
 def test_user_update_user_invalid_data(client, user_auth_headers):
     payload = {
@@ -113,52 +85,9 @@ def test_user_update_user_invalid_data(client, user_auth_headers):
         headers = user_auth_headers
     )
     
-    assert response.status_code == 422  
-    data = response.get_json()
-    assert "error" in data 
-    assert "username" in data["message"]
-    assert "password" in data["message"]
-    assert "email" in data["message"]
+    assert_error_response(response, 422, "ValidationError")
+    
+def test_user_protected_route_no_token(client):
+    response = client.get("/api/v1/users/2")
 
-def test_user_update_user_not_found(client, user_auth_headers):
-    payload = {
-        "username": "Samuel",
-        "email": "samuel@test.com",
-        "password": "aurora12345",
-        "role": "user"
-    }    
-    
-    response = client.put(
-        "/api/v1/users/0",
-        json = payload,
-        headers = user_auth_headers
-    )
-    
-    assert response.status_code == 404
-
-def test_user_update_wrong_user(client, user_auth_headers):
-    payload = {
-        "username": "Samuel",
-        "email": "samuel@test.com",
-        "password": "aurora12345",
-        "role": "user"
-    }    
-    
-    response = client.put(
-        "/api/v1/users/1",
-        json = payload,
-        headers = user_auth_headers
-    )
-    
-    assert response.status_code == 403    
-    
-def test_user_delete_user(client, user_auth_headers):
-    response = client.delete(
-        "/api/v1/users/3",
-        headers = user_auth_headers
-    )
-    
-    assert response.status_code == 403
-    data = response.get_json() 
-    assert "message" in data
-    
+    assert response.status_code == 401

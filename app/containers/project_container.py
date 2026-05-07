@@ -30,13 +30,13 @@ class ProjectContainer:
         # Services 
         self.retrieve_project_service = GetProjectService(self.project_repository, self.user_repository) 
         self.retrieve_projects_service = GetProjectsService(self.project_repository, self.user_repository)
-        self.create_project_service = CreateProjectService(self.project_repository, self.user_repository)
-        self.update_project_service = UpdateProjectService(self.project_repository, self.user_repository)
-        self.remove_project_service = RemoveProjectService(self.project_repository, self.user_repository)
+        self.create_service = CreateProjectService(self.project_repository, self.user_repository)
+        self.update_service = UpdateProjectService(self.project_repository, self.user_repository)
+        self.remove_service = RemoveProjectService(self.project_repository, self.user_repository)
         
         # Controllers
         self.retrieve_projects_controller = GetProjectsController(self.retrieve_projects_service) 
-        self.remove_project_controller = RemoveProjectController(self.remove_project_service)
+        self.remove_controller = RemoveProjectController(self.remove_service)
         self.retrieve_project_controller = GetProjectController(self.retrieve_project_service)
-        self.update_project_controller = UpdateProjectController(self.update_project_service)
-        self.create_project_controller = CreateProjectController(self.create_project_service)
+        self.update_controller = UpdateProjectController(self.update_service)
+        self.create_controller = CreateProjectController(self.create_service)

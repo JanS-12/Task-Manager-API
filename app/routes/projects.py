@@ -30,7 +30,7 @@ def get_project(project_id: int):
 @role_required(["user", "admin"])
 def create_project():
       project_container = current_app.container.project
-      return project_container.create_project_controller.create_project(request.get_json(), int(get_jwt_identity()))
+      return project_container.create_controller.create_project(request.get_json(), int(get_jwt_identity()))
 
 # PUT /projects/<project_id> --> Update a project
 @project_bp.route("/<int:project_id>", methods=["PUT"])
@@ -40,7 +40,7 @@ def update_project(project_id: int):
       current_user_id = int(get_jwt_identity())
       data = request.get_json() 
       project_container = current_app.container.project
-      return project_container.update_project_controller.update_project(data, project_id, current_user_id) 
+      return project_container.update_controller.update_project(data, project_id, current_user_id) 
     
     
     
@@ -50,5 +50,5 @@ def update_project(project_id: int):
 @role_required(["user", "admin"])
 def remove_project(project_id: int):
       project_container = current_app.container.project
-      project_container.remove_project_controller.remove_project(project_id, int(get_jwt_identity()))
+      project_container.remove_controller.remove_project(project_id, int(get_jwt_identity()))
       return jsonify(message = ""), 204

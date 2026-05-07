@@ -32,7 +32,7 @@ def create_task(project_id: int):
     data = request.get_json()
     current_user_id = int(get_jwt_identity())
     task_container = current_app.container.task
-    return task_container.create_task_controller.create_task(data, project_id, current_user_id)
+    return task_container.create_controller.create_task(data, project_id, current_user_id)
      
 
 # PUT /projects/<project_id>/tasks/<task_id>
@@ -43,7 +43,7 @@ def update_task(project_id: int, task_id: int):
     current_user_id = int(get_jwt_identity())
     json_data = request.get_json()
     task_container = current_app.container.task
-    return task_container.update_task_controller.update_task(json_data, project_id, task_id, current_user_id)
+    return task_container.update_controller.update_task(json_data, project_id, task_id, current_user_id)
     
     
 # DELETE /projects/<project_id>/tasks/<task_id>
@@ -53,6 +53,6 @@ def update_task(project_id: int, task_id: int):
 def remove_task(project_id: int, task_id: int):
     current_user_id = int(get_jwt_identity())
     task_container = current_app.container.task
-    task_container.remove_task_controller.remove_task(project_id, task_id, current_user_id)
+    task_container.remove_controller.remove_task(project_id, task_id, current_user_id)
     return jsonify(message = ""), 204 
       

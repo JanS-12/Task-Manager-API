@@ -26,4 +26,5 @@ class TokenRepository():
                 
         db.session.commit()       
          
-        
+    def get_revoked_token(self, jti):
+       return TokenBlocklist.query.filter_by(jti = jti).first()
