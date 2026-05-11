@@ -1,7 +1,8 @@
 from app.services.projects.update_project import UpdateProjectService
+from app.utils.responses import build_success_response
 from app.schemas.project_schema import ProjectSchema
 from app.utils.custom_exceptions import NoDataError
-
+from flask import jsonify
 class UpdateProjectController:
     def __init__(self, service: UpdateProjectService):
         self.service = service
@@ -13,4 +14,10 @@ class UpdateProjectController:
         
         project_data = self.schema.load(data)
         project = self.service.update_project(project_data, project_id, user_id)
-        return self.schema.jsonify(project), 200
+        return jsonify(
+            build_success_response(
+                "Project updated successfully",
+                200,
+                self.schema.dump(project)
+            )
+        ), 200

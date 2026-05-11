@@ -2,8 +2,9 @@ from app.utils.custom_exceptions import AppException
 from werkzeug.exceptions import HTTPException
 from marshmallow import ValidationError
 from ..utils.logging import get_logger, log_error
+from app.utils.responses import build_error_response
 from datetime import datetime
-from flask import jsonify, request, has_request_context
+from flask import jsonify
 from logging import WARNING, ERROR
 
 error_logger = get_logger("error")
@@ -81,17 +82,3 @@ def register_error_handlers(app):
                 500
             )
         ), 500
-    
-    
-    
-def build_error_response(error_type, message, status_code, details=None):
-    return {
-        "error": {
-            "type": error_type,
-            "message": message,
-            "status_code": status_code,
-            "path": request.path if has_request_context() else None,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
-            "details": details or {}
-        }
-    }

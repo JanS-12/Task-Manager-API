@@ -1,4 +1,4 @@
-from app.tests.utils.assertions import assert_error_response
+from app.tests.utils.assertions import assert_error_response, assert_success_responses
 """ Test Suite for Projects """
 
 # ---- Admin Routes ----
@@ -8,7 +8,7 @@ def test_admin_get_all_projects(client, admin_auth_headers):
         "/api/v1/projects/",
         headers = admin_auth_headers
     )    
-    assert response.status_code == 200
+    assert_success_responses(response, 200, "Projects retrieved successfully") 
 
 def test_admin_get_a_project(client, admin_auth_headers):
     response = client.get(
@@ -16,7 +16,7 @@ def test_admin_get_a_project(client, admin_auth_headers):
         headers = admin_auth_headers
     )    
     
-    assert response.status_code == 200 
+    assert_success_responses(response, 200, "Project retrieved successfully") 
 
 
 def test_admin_create_project(client, admin_auth_headers):  
@@ -32,9 +32,7 @@ def test_admin_create_project(client, admin_auth_headers):
         headers = admin_auth_headers
     )
 
-    assert response.status_code == 201    
-    data = response.get_json()
-    assert "id" in data
+    assert_success_responses(response, 201, "Project created successfully")
 
 
 def test_admin_update_project(client, admin_auth_headers):
@@ -50,7 +48,7 @@ def test_admin_update_project(client, admin_auth_headers):
         headers = admin_auth_headers
     )
 
-    assert response.status_code == 201  
+    assert_success_responses(response, 201, "Project created successfully") 
     
     payload = {
         "title": "Project Test Suite",
@@ -64,9 +62,7 @@ def test_admin_update_project(client, admin_auth_headers):
         headers = admin_auth_headers
     )
 
-    assert response.status_code == 200   
-    data = response.get_json()
-    assert "id" in data
+    assert_success_responses(response, 200, "Project updated successfully")
 
     
 def test_admin_delete_project(client, admin_auth_headers):
@@ -82,7 +78,7 @@ def test_admin_delete_project(client, admin_auth_headers):
         headers = admin_auth_headers
     )
 
-    assert response.status_code == 201  
+    assert_success_responses(response, 201, "Project created successfully") 
     
     response = client.delete(
         "/api/v1/projects/4", # Project #4
@@ -101,9 +97,7 @@ def test_user_get_user_projects(client, user_auth_headers):
         headers = user_auth_headers
     )    
     
-    count = len(response.get_json())
-    assert response.status_code == 200
-    assert count == 1
+    assert_success_responses(response, 200, "Projects retrieved successfully")
     
     
 def test_user_get_a_user_project(client, user_auth_headers):
@@ -112,9 +106,7 @@ def test_user_get_a_user_project(client, user_auth_headers):
         headers = user_auth_headers
     )    
     
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "id" in data 
+    assert_success_responses(response, 200, "Project retrieved successfully")
 
 
 def test_user_create_project(client, user_auth_headers):
@@ -130,9 +122,7 @@ def test_user_create_project(client, user_auth_headers):
         headers = user_auth_headers
     )
 
-    assert response.status_code == 201    
-    data = response.get_json()
-    assert "id" in data
+    assert_success_responses(response, 201, "Project created successfully")
     
        
 def test_user_update_project(client, user_auth_headers):
@@ -148,7 +138,7 @@ def test_user_update_project(client, user_auth_headers):
         headers = user_auth_headers
     )
     
-    assert response.status_code == 201
+    assert_success_responses(response, 201, "Project created successfully")
     
     payload = {
         "title": "Project Test Suite User",
@@ -162,9 +152,7 @@ def test_user_update_project(client, user_auth_headers):
         headers = user_auth_headers
     )
 
-    assert response.status_code == 200   
-    data = response.get_json()
-    assert "id" in data
+    assert_success_responses(response, 200, "Project updated successfully")
 
 
 def test_user_delete_project(client, user_auth_headers):
@@ -180,7 +168,7 @@ def test_user_delete_project(client, user_auth_headers):
         headers = user_auth_headers
     )
     
-    assert response.status_code == 201
+    assert_success_responses(response, 201, "Project created successfully")
     
     response = client.delete(
         "/api/v1/projects/4", # Project #4

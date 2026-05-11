@@ -1,7 +1,8 @@
 from app.services.tasks.modify import UpdateTaskService
+from app.utils.responses import build_success_response
 from app.utils.custom_exceptions import NoDataError
 from app.schemas.task_schema import TaskSchema
-
+from flask import jsonify
 
 class UpdateTaskController:
     def __init__(self, service: UpdateTaskService):
@@ -14,4 +15,10 @@ class UpdateTaskController:
         
         task_data = self.schema.load(data)
         task = self.service.update_task(task_data, project_id, task_id, user_id)
-        return self.schema.jsonify(task), 200
+        return jsonify(
+            build_success_response(
+                "Task updated successfully",
+                200, 
+                self.schema.dump(task)
+            )
+        ), 200

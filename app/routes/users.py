@@ -13,6 +13,7 @@ def get_all_users():
     user_container = current_app.container.user
     return user_container.users_profile_controller.get(int(get_jwt_identity()))
 
+
 @user_bp.route("/<int:user_id>", methods=["GET"])
 @jwt_required()
 @role_required(["user", "admin"])

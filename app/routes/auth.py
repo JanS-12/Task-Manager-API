@@ -25,8 +25,7 @@ def register():
 @limiter.limit("100 per minute") 
 def login():   
     user_container = current_app.container.user
-    tokens = user_container.login_controller.login(request.get_json())
-    return jsonify(access_token = tokens["access_token"], refresh_token = tokens["refresh_token"]), 200
+    return user_container.login_controller.login(request.get_json())
 
 
 # This function is to be called inUser_DIrectly by the front-end client, not the user user_containerrectly
@@ -34,8 +33,7 @@ def login():
 @jwt_required(refresh = True)
 def refresh_access_token():
     user_container = current_app.container.user
-    return user_container.refresh_access_token_controller.refresh_access_token(int(get_jwt_identity()))
-    
+    return user_container.refresh_access_token_controller.refresh_access_token(int(get_jwt_identity()))    
 
 
 @auth_bp.route("/logout", methods=["POST"])
@@ -43,5 +41,5 @@ def refresh_access_token():
 @role_required(["user", "admin"])
 def logout():
     user_container = current_app.container.user
-    user_container.logout_controller.logout(int(get_jwt_identity()))
-    return jsonify(message = "User succesfully logged out!"), 200
+    return user_container.logout_controller.logout(int(get_jwt_identity()))
+    

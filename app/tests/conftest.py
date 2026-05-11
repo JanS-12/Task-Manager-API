@@ -30,7 +30,7 @@ def admin_auth_headers(client):
         content_type = "application/json"
     )
     
-    token = response.get_json()["access_token"]
+    token = response.get_json()["success"]["data"]["access_token"]
     
     header = {"Authorization": f"Bearer {token}"}
     return header
@@ -48,7 +48,7 @@ def user_auth_headers(client):
         content_type = "application/json"
     )
     
-    token = response.get_json()["access_token"]
+    token = response.get_json()["success"]["data"]["access_token"]
     
     header = {"Authorization": f"Bearer {token}"}
     return header

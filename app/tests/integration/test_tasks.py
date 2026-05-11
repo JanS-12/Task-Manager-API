@@ -1,4 +1,4 @@
-from app.tests.utils.assertions import assert_error_response
+from app.tests.utils.assertions import assert_error_response, assert_success_responses
 """  Test Suite for Tasks """
 
 # ---- Admin Routes -----
@@ -9,7 +9,7 @@ def test_admin_get_all_tasks(client, admin_auth_headers):
         headers = admin_auth_headers
     )     
        
-    assert response.status_code == 200
+    assert_success_responses(response, 200, "Tasks retrieved successfully")
    
 def test_admin_get_a_task(client, admin_auth_headers):
     response = client.get(
@@ -17,7 +17,7 @@ def test_admin_get_a_task(client, admin_auth_headers):
         headers = admin_auth_headers
     )    
 
-    assert response.status_code == 200
+    assert_success_responses(response, 200, "Task retrieved successfully")
 
 def test_admin_create_task(client, admin_auth_headers):
     payload = {     # Task #7 under Project #1
@@ -32,9 +32,7 @@ def test_admin_create_task(client, admin_auth_headers):
         headers = admin_auth_headers
     ) 
     
-    assert response.status_code == 201
-    data = response.get_json()
-    assert "id" in data
+    assert_success_responses(response, 201, "Task created successfully")
 
 def test_admin_update_task(client, admin_auth_headers):
     payload = {     # Task #7 under Project #1
@@ -49,7 +47,7 @@ def test_admin_update_task(client, admin_auth_headers):
         headers = admin_auth_headers
     ) 
     
-    assert response.status_code == 201
+    assert_success_responses(response, 201, "Task created successfully")
     
     payload = {
         "title": "Admin update task test suite endpoint",
@@ -63,9 +61,7 @@ def test_admin_update_task(client, admin_auth_headers):
         headers = admin_auth_headers
     ) 
     
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "id" in data
+    assert_success_responses(response, 200, "Task updated successfully")
     
 def test_admin_delete_task(client, admin_auth_headers):
     payload = {     # Task #7 under Project #1
@@ -80,7 +76,7 @@ def test_admin_delete_task(client, admin_auth_headers):
         headers = admin_auth_headers
     ) 
     
-    assert response.status_code == 201
+    assert_success_responses(response, 201, "Task created successfully")
     
     response = client.delete(
         "/api/v1/projects/1/tasks/7",
@@ -98,10 +94,7 @@ def test_user_get_all_tasks(client, user_auth_headers):
         headers = user_auth_headers
     )    
     
-    count = len(response.get_json())
-    
-    assert response.status_code == 200
-    assert count == 2
+    assert_success_responses(response, 200, "Tasks retrieved successfully")
     
 def test_user_get_a_task(client, user_auth_headers):
     response = client.get(
@@ -109,7 +102,7 @@ def test_user_get_a_task(client, user_auth_headers):
         headers = user_auth_headers
     )    
     
-    assert response.status_code == 200
+    assert_success_responses(response, 200, "Task retrieved successfully")
     
 def test_user_create_task(client, user_auth_headers):
     payload = {
@@ -124,9 +117,7 @@ def test_user_create_task(client, user_auth_headers):
         headers = user_auth_headers
     ) 
     
-    assert response.status_code == 201
-    data = response.get_json()
-    assert "id" in data
+    assert_success_responses(response, 201, "Task created successfully")
     
 def test_user_update_task(client, user_auth_headers):
     payload = {
@@ -141,7 +132,7 @@ def test_user_update_task(client, user_auth_headers):
         headers = user_auth_headers
     ) 
     
-    assert response.status_code == 201
+    assert_success_responses(response, 201, "Task created successfully")
     
     payload = {
         "title": "User update task test suite endpoint",
@@ -155,9 +146,7 @@ def test_user_update_task(client, user_auth_headers):
         headers = user_auth_headers
     ) 
     
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "id" in data
+    assert_success_responses(response, 200, "Task updated successfully")
     
 def test_user_delete_task(client, user_auth_headers):
     payload = {
@@ -172,7 +161,7 @@ def test_user_delete_task(client, user_auth_headers):
         headers = user_auth_headers
     ) 
     
-    assert response.status_code == 201
+    assert_success_responses(response, 201, "Task created successfully")
     
     response = client.delete(
         "/api/v1/projects/2/tasks/7",

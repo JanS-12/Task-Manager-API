@@ -1,8 +1,8 @@
-from app.tests.utils.assertions import assert_error_response
+from app.tests.utils.assertions import assert_error_response, assert_success_responses
 """ Test Suite for Auth Routes """
 
 # --- Success Routes ------
-def test_create_user(client):
+def test_registration(client):
     payload = {
         "username": "Josue",
         "email": "josue@test.com",
@@ -16,10 +16,7 @@ def test_create_user(client):
         content_type = "application/json"
     )
     
-    assert response.status_code == 201
-    data = response.get_json()
-    assert data["username"] == "Josue"
-    assert data["email"] == "josue@test.com"    
+    assert_success_responses(response, 201, "Registration Successful")  
     
 def test_login(client, test_user): 
     # Login
@@ -29,10 +26,7 @@ def test_login(client, test_user):
         content_type = "application/json"
     )
     
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "access_token" in data
-    assert "refresh_token" in data
+    assert_success_responses(response, 200, "Login Successful")
     
     
 def test_logout(client, user_auth_headers):
@@ -40,8 +34,8 @@ def test_logout(client, user_auth_headers):
         "/api/v1/auth/logout",
         headers = user_auth_headers
     )
-    
-    assert response.status_code == 200
+
+    assert_success_responses(response, 200, "Logout Successful")
     
     
 def test_user_refresh_access_token(client, test_user):
@@ -52,7 +46,7 @@ def test_user_refresh_access_token(client, test_user):
     )
     
     assert response.status_code == 200
-    token = response.get_json()["refresh_token"]
+    token = response.get_json()["success"]["data"]["refresh_token"]
     header = {"Authorization": f"Bearer {token}"}
     
     response = client.post(
@@ -60,9 +54,7 @@ def test_user_refresh_access_token(client, test_user):
         headers = header
     )
     
-    assert response.status_code == 200
-    data = response.get_json()
-    assert "access_token" in data
+    assert_success_responses(response, 200, "New Access Token Issued")
     
     
 # ------ Failure Routes --------

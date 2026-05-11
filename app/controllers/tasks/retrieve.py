@@ -1,5 +1,7 @@
 from app.services.tasks.retrieve import GetTaskService, GetTasksService
+from app.utils.responses import build_success_response
 from app.schemas.task_schema import TaskSchema
+from flask import jsonify
 
 class GetTaskController:
     def __init__(self, service: GetTaskService):
@@ -8,7 +10,13 @@ class GetTaskController:
         
     def get_task(self, project_id, task_id, user_id):
         task = self.service.get_task(project_id, task_id, user_id)
-        return self.schema.jsonify(task), 200
+        return jsonify(
+            build_success_response(
+                "Task retrieved successfully",
+                200, 
+                self.schema.dump(task)
+            )
+        ), 200
     
 class GetTasksController:
     def __init__(self, service: GetTasksService):
@@ -17,4 +25,10 @@ class GetTasksController:
         
     def get_tasks(self, project_id, user_id):
         tasks = self.service.get_tasks(project_id, user_id)
-        return self.schema.jsonify(tasks), 200
+        return jsonify(
+            build_success_response(
+                "Tasks retrieved successfully",
+                200, 
+                self.schema.dump(tasks)
+            )
+        ), 200

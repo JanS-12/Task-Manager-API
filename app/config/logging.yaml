@@ -2,7 +2,8 @@ version: 1
 disable_existing_loggers: false
 
 formatters:
-  json: # Info --> Regural Operations [All]
+  json:
+    class: app.utils.log_formatter.SafeFormatter
     format: >
       {
        "timestamp": "%(asctime)s",
@@ -13,7 +14,8 @@ formatters:
        "line": %(lineno)d
       }
 
-  request: # Detailed --> Technical Operations
+  request:
+    class: app.utils.log_formatter.SafeFormatter
     format: >
       {
        "timestamp": "%(asctime)s",
@@ -22,11 +24,12 @@ formatters:
        "message": "%(message)s",
        "path": "%(path)s",
        "method": "%(method)s",
-       "status_code": "%(status_code)d"
+       "status_code": %(status_code)d
       }
-  
-  error: # Error --> Details for Error Handling
-    format: > 
+
+  error:
+    class: app.utils.log_formatter.SafeFormatter
+    format: >
       {
        "timestamp": "%(asctime)s",
        "level": "%(levelname)s",
@@ -34,7 +37,7 @@ formatters:
        "message": "%(message)s",
        "client_ip": "%(client_ip)s",
        "error_type": "%(error_type)s",
-       "status_code": "%(status_code)d"
+       "status_code": %(status_code)d
       }
 
 handlers:
@@ -68,6 +71,12 @@ handlers:
     formatter: request
     filename: app/logs/security.log  
 
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: json
+    stream: ext://sys.stdout
+
 loggers:
   app:
     level: INFO
@@ -96,4 +105,4 @@ loggers:
 
 root:
   level: INFO
-  handlers: [error_handler]
+  handlers: [app_handler, console]

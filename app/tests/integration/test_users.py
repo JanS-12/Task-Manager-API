@@ -1,4 +1,4 @@
-from app.tests.utils.assertions import assert_error_response
+from app.tests.utils.assertions import assert_error_response, assert_success_responses
 
 """ Test Suite for User Route """
 
@@ -10,15 +10,16 @@ def test_admin_get_all_users(client, admin_auth_headers):
         "/api/v1/users/",
         headers = admin_auth_headers
     )
+    print(response.get_json())
 
-    assert response.status_code == 200 
+    assert_success_responses(response, 200, "Users Retrieved Successfully")
     
 def test_admin_get_user(client, admin_auth_headers):  
     response = client.get(
         "/api/v1/users/1",
         headers = admin_auth_headers
     )
-    assert response.status_code == 200  
+    assert_success_responses(response, 200, "User Retrieved Successfully") 
     
 def test_admin_update_user(client, test_user, admin_auth_headers):    
     payload = { # User created in test_auth
@@ -34,14 +35,13 @@ def test_admin_update_user(client, test_user, admin_auth_headers):
         headers = admin_auth_headers
     )
     
-    assert response.status_code == 200
+    assert_success_responses(response, 200, "User Updated Successfully") 
     
-def test_admin_user_delete(client, test_user, admin_auth_headers):
+def test_admin_remove_user(client, test_user, admin_auth_headers):
     response = client.delete(
         "/api/v1/users/4",
         headers = admin_auth_headers
     )
-    
     assert response.status_code == 204
     
     
@@ -53,12 +53,7 @@ def test_user_protected_get_user(client, user_auth_headers):
         "/api/v1/users/2",          # This means that there are 8 users on profile
         headers = user_auth_headers
     )
-    assert response.status_code == 200 
-    data = response.get_json()
-    
-    assert "username" in data
-    assert "email" in data
-    assert "role" in data
+    assert_success_responses(response, 200, "User Retrieved Successfully")
     
     
     # ----- Failure, Unathorized, Forbidden Routes ----------    

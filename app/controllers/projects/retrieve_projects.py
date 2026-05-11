@@ -1,7 +1,8 @@
 from app.services.projects.retrieve_projects import GetProjectsService
+from app.utils.responses import build_success_response
 from app.schemas.project_schema import ProjectSchema
 from app.utils.custom_exceptions import NoDataError
-
+from flask import jsonify
 class GetProjectsController:
     def __init__(self, service: GetProjectsService):
         self.service = service
@@ -12,4 +13,10 @@ class GetProjectsController:
             raise NoDataError()
         
         projects = self.service.get_projects(requester_id)
-        return self.schema.jsonify(projects), 200
+        return jsonify(
+            build_success_response(
+                "Projects retrieved successfully",
+                200, 
+                self.schema.dump(projects)
+            )
+        ), 200
