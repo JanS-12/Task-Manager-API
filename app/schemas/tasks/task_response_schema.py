@@ -1,10 +1,10 @@
-from marshmallow import fields, validate
-from app.extensions import ma
+from marshmallow import fields
+from app.schemas.base_schema import BaseSchema
 
 # Task Schema for validation
-class TaskSchema(ma.Schema):
+class TaskResponseSchema(BaseSchema):
     id          = fields.Int(dump_only = True)
-    title       = fields.Str(required = True, validate = validate.Length(min = 5, max = 80))    # Validate Length
+    title       = fields.Str()
     description = fields.Str()
     project_id  = fields.Int()
     created_at  = fields.DateTime(dump_only = True)

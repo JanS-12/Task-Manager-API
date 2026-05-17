@@ -4,7 +4,6 @@ from app.extensions import db
 # Handles all CRUD for Projects
 class ProjectRepository:
     def create_project(self, owner_id, data):
-        print("Creating project, repo")
         project = Project(
             title = data["title"],
             description = data.get("description"),

@@ -1,22 +1,19 @@
 from app.services.users.login_service import LoginService
 from app.utils.responses import build_success_response
-from app.utils.custom_exceptions import NoDataError
-from app.schemas.user_schema import UserSchema
+from app.schemas.users.user_response_schema import UserResponseSchema
+from app.schemas.auth.login_schema import LoginSchema
 from flask import jsonify
 
 class LoginController:
     def __init__(self, service: LoginService):
         self.service = service
-        self.schema = UserSchema()
+        self.login_schema = LoginSchema()
+        self.schema = UserResponseSchema()
         
     def login(self, data):
-        if not data:
-            raise NoDataError()
+        validated = self.login_schema.load(data)
         
-        username = data["username"]
-        password = data["password"]
-        
-        tokens = self.service.login(username, password)
+        tokens = self.service.login(**validated)
         return jsonify(
             build_success_response(
                 "Login Successful",

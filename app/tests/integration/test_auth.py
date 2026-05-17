@@ -84,7 +84,7 @@ def test_registration_no_data(client):
         content_type = "application/json"
     )
     
-    assert_error_response(response, 400, "NoDataError")
+    assert_error_response(response, 422, "ValidationError")
 
 def test_registration_duplicate_user(client):
     payload = {
@@ -112,13 +112,13 @@ def test_login_no_data(client):
         content_type = "application/json"
     )
     
-    assert_error_response(response, 400, "NoDataError")
+    assert_error_response(response, 422, "ValidationError")
     
         
 def test_login_invalid_password(client, test_user):
     credentials = {
         "username": test_user["username"],
-        "password": "asdfg"
+        "password": "asdfggndnysbm"
     }
     
     # Login

@@ -1,6 +1,6 @@
 from app.services.users.profile_service import GetUserProfileService, GetAllUsersProfileService
+from app.schemas.users.user_response_schema import UserResponseSchema
 from app.utils.responses import build_success_response
-from app.schemas.user_schema import UserSchema
 from flask import jsonify
 
 # These two are different worklows, 
@@ -9,7 +9,7 @@ from flask import jsonify
 class GetUserProfileController:
     def __init__(self, service: GetUserProfileService):
         self.service = service
-        self.schema = UserSchema() # DTO
+        self.schema = UserResponseSchema() # DTO
         
     def get(self, user_id, requester_id):  
         user = self.service.get(user_id, requester_id)
@@ -25,7 +25,7 @@ class GetUserProfileController:
 class GetAllUserProfileController:
     def __init__(self, service: GetAllUsersProfileService):
         self.service = service
-        self.schema = UserSchema(many = True) # DTO
+        self.schema = UserResponseSchema(many = True) # DTO
         
     def get(self, requester_id):  
         users = self.service.get(requester_id)

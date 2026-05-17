@@ -64,7 +64,7 @@ def test_user_update_user_no_data(client, user_auth_headers):
         headers = user_auth_headers
     )
     
-    assert_error_response(response, 400, "NoDataError")
+    assert_error_response(response, 422, "ValidationError")
     
 def test_user_update_user_invalid_data(client, user_auth_headers):
     payload = {
